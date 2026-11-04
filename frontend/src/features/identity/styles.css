@@ -1,0 +1,42 @@
+.account-link{font-size:13px;font-weight:700;white-space:nowrap;padding:12px 0}
+/* The welcome panel moves between the two forms without remounting the card. */
+.auth-shell{min-height:100svh;display:grid;align-items:center;padding:32px 0}
+.auth-shell .auth-page{width:100%}
+.auth-shell .auth-card{margin:0 auto}
+.auth-card{display:grid;grid-template-columns:1fr 1fr;position:relative;max-width:820px;min-height:400px;margin:12px auto 0;background:white;border:1px solid var(--line);border-radius:30px;box-shadow:0 14px 40px #16191c16;overflow:hidden}
+.auth-form-slot{position:relative;grid-column:1;grid-row:1;min-width:0}
+.is-registering .auth-form-slot{grid-column:2}
+.auth-form{padding:24px 30px;text-align:center;min-height:400px}
+.auth-form h1{font-size:28px;letter-spacing:-1px}
+.auth-form>.eyebrow{font-size:10px;letter-spacing:1.8px;margin-bottom:10px}
+.auth-form>p:not(.eyebrow){font-size:13px;color:var(--muted);line-height:1.7;margin-top:10px}
+.auth-form form{display:flex;flex-direction:column;gap:4px;margin-top:12px;text-align:left}
+.auth-form label{font-size:12px;font-weight:700;margin-top:4px}
+.auth-form label span{font-weight:400;color:var(--muted)}
+.auth-form input{width:100%;min-width:0;min-height:44px;padding:10px 12px;border:1px solid #e3e6ea;border-radius:8px;background:var(--surface);font-size:13px;color:var(--ink)}
+.auth-form small{color:var(--muted);font-size:11px;line-height:1.6}
+.password-input{display:flex;align-items:center;border:1px solid #e3e6ea;border-radius:8px;background:var(--surface)}
+.password-input input{border:0;flex:1}
+.password-input button{background:none;border:0;min-height:44px;padding:0 14px;color:#704500;font-weight:700;font-size:12px}
+.auth-form .auth-submit{align-self:center;min-width:156px;margin-top:12px;border-radius:8px;padding:13px 28px}
+.auth-submit:hover:not(:disabled){background:#e5a000}
+.form-error{padding:12px;background:#fdecea;border:1px solid #f0c8c3;border-radius:9px;color:#952316;font-size:13px;line-height:1.6}
+.auth-form .auth-switch{display:none}
+.auth-switch a,.text-link{color:#704500;font-weight:700;text-decoration:underline}
+.back-shopping{display:inline-block;margin-top:12px;font-size:12px;color:var(--muted)}
+.auth-welcome{position:relative;grid-column:2;grid-row:1;min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;padding:36px 30px;text-align:center;background:var(--amber);color:var(--ink);border-radius:110px 0 0 110px;animation:welcome-slide .65s cubic-bezier(.65,0,.35,1)}
+.is-registering .auth-welcome{grid-column:1;border-radius:0 110px 110px 0}
+.auth-welcome .eyebrow{color:var(--ink);font-size:10px;letter-spacing:1.5px;margin:0}
+.auth-welcome h2{font-size:28px;letter-spacing:-.8px}
+.auth-welcome>p:not(.eyebrow){max-width:300px;font-size:14px;line-height:1.8}
+.auth-panel-switch{border:1px solid var(--ink);background:transparent;border-radius:8px;min-width:172px;font-size:13px}
+.auth-panel-switch:hover{background:var(--ink);color:white}
+.auth-welcome a:focus-visible{outline-color:var(--ink)}
+.is-registering .auth-form{padding-top:20px;padding-bottom:20px}
+.is-registering .auth-form>p:not(.eyebrow):not(.auth-switch){display:none}
+@keyframes welcome-slide{from{translate:-100% 0}to{translate:0 0}}
+.is-registering .auth-welcome{animation-name:welcome-slide-back}
+@keyframes welcome-slide-back{from{translate:100% 0}to{translate:0 0}}
+@media(prefers-reduced-motion:reduce){.auth-welcome{animation:none}}
+.account-page{min-height:480px;padding-top:1px}.account-page>h1{margin-top:20px;overflow-wrap:anywhere}.account-page>p{margin:18px 0;line-height:1.7;color:var(--muted)}.account-page>.text-link{margin-left:20px;font-size:13px}.account-grid{display:grid;grid-template-columns:1.2fr 1fr;gap:24px;margin-top:28px}.account-panel{background:white;border:1px solid var(--line);border-radius:16px;padding:28px;min-width:0}.account-panel h2{font-size:23px}.account-panel dl{margin:24px 0}.account-panel dl>div{padding:14px 0;border-bottom:1px solid var(--line);display:grid;grid-template-columns:130px minmax(0,1fr);gap:16px;font-size:14px}.account-panel dt{color:var(--muted)}.account-panel dd{margin:0;overflow-wrap:anywhere}.account-note{color:var(--muted);font-size:12px;line-height:1.7;margin:16px 0}.account-panel .form-error{margin-bottom:16px}.account-next{background:#fff4db}.account-next p:not(.eyebrow){line-height:1.8;color:var(--muted);font-size:14px;margin:20px 0}.account-page .eyebrow{color:#8a5300}
+@media(max-width:760px){.header-row .account-link{margin-left:auto;font-size:12px}.auth-card{display:flex;flex-direction:column;border-radius:24px;min-height:0;margin-top:0}.auth-form-slot{width:100%;transition:none}.is-registering .auth-form-slot{grid-column:auto}.auth-form,.is-registering .auth-form{padding:20px;min-height:0}.auth-welcome,.is-registering .auth-welcome{position:relative;inset:auto;width:100%;transform:none;border-radius:64px 64px 0 0;padding:20px;gap:12px;animation:none}.auth-welcome h2{font-size:28px}.auth-welcome .eyebrow{display:none}.auth-form h1{font-size:28px}.auth-form>.eyebrow{font-size:10px}.account-grid{grid-template-columns:1fr;gap:18px}.account-panel{padding:22px}.account-page>h1{font-size:28px}.account-panel dl>div{grid-template-columns:100px minmax(0,1fr);gap:12px;font-size:13px}}

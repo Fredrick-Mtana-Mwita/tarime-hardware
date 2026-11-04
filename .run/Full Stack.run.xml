@@ -1,0 +1,10 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="Full Stack - local" type="Application" factoryName="Application">
+    <option name="MAIN_CLASS_NAME" value="africa.finishers.devtools.FullStackLauncher" />
+    <module name="finishers-backend" />
+    <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+    <option name="PROGRAM_PARAMETERS" value="&quot;$PROJECT_DIR$&quot;" />
+    <option name="VM_PARAMETERS" value="-Djdk.net.unixdomain.tmpdir=$PROJECT_DIR$/.local/tmp" />
+    <method v="2"><option name="Make" enabled="true" /></method>
+  </configuration>
+</component>

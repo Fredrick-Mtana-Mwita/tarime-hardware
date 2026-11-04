@@ -1,0 +1,8 @@
+spring:
+  config:
+    import: ""
+server:
+  servlet:
+    session:
+      cookie:
+        secure: true

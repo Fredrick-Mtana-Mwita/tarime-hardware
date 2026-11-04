@@ -1,0 +1,86 @@
+name: Foundation verification
+
+# Manual only: confirm GitHub account/repository free-minute eligibility before running.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: ephemeral-ci-admin
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24.19.0'
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - name: Create isolated CI databases and non-superuser application roles
+        env:
+          PGPASSWORD: ephemeral-ci-admin
+        run: |
+          psql -h 127.0.0.1 -U postgres -d postgres -v ON_ERROR_STOP=1 <<'SQL'
+          CREATE ROLE finishers_dev LOGIN PASSWORD 'ephemeral-ci-dev' NOSUPERUSER NOCREATEDB NOCREATEROLE;
+          CREATE ROLE finishers_test LOGIN PASSWORD 'ephemeral-ci-test' NOSUPERUSER NOCREATEDB NOCREATEROLE;
+          CREATE DATABASE finishers_dev OWNER finishers_dev;
+          CREATE DATABASE finishers_test OWNER finishers_test;
+          REVOKE ALL ON DATABASE finishers_dev FROM PUBLIC;
+          REVOKE ALL ON DATABASE finishers_test FROM PUBLIC;
+          GRANT CONNECT ON DATABASE finishers_dev TO finishers_dev;
+          GRANT CONNECT ON DATABASE finishers_test TO finishers_test;
+          SQL
+          cat > backend/.env <<'ENV'
+          FPA_DB_URL=jdbc:postgresql://127.0.0.1:5432/finishers_dev
+          FPA_DB_USER=finishers_dev
+          FPA_DB_PASSWORD=ephemeral-ci-dev
+          ENV
+          cat > backend/.env.test <<'ENV'
+          FPA_TEST_DB_URL=jdbc:postgresql://127.0.0.1:5432/finishers_test
+          FPA_TEST_DB_USER=finishers_test
+          FPA_TEST_DB_PASSWORD=ephemeral-ci-test
+          ENV
+      - name: Backend unit, architecture, integration tests and package
+        run: bash ./mvnw -B verify
+      - name: Frontend checks
+        working-directory: frontend
+        run: |
+          npm ci
+          npm run lint
+          npm test
+          npm run build
+          npm audit --audit-level=moderate
+      - name: Start backend and wait for readiness
+        run: |
+          java -jar backend/target/finishers-backend-0.1.0-SNAPSHOT.jar --spring.profiles.active=dev > backend-smoke.log 2>&1 &
+          for attempt in $(seq 1 40); do
+            if curl --fail --silent http://127.0.0.1:8080/actuator/health/readiness; then exit 0; fi
+            sleep 1
+          done
+          tail -n 100 backend-smoke.log
+          exit 1
+      - name: Real browser smoke tests
+        working-directory: frontend
+        run: |
+          npx playwright install --with-deps chromium
+          npm run test:e2e

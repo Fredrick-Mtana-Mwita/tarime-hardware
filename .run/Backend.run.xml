@@ -1,0 +1,9 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="Backend - local" type="Application" factoryName="Application">
+    <option name="MAIN_CLASS_NAME" value="africa.finishers.FinishersApplication" />
+    <module name="finishers-backend" />
+    <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/backend" />
+    <option name="VM_PARAMETERS" value="-Dspring.profiles.active=dev -Djdk.net.unixdomain.tmpdir=$PROJECT_DIR$/.local/tmp" />
+    <method v="2"><option name="Make" enabled="true" /></method>
+  </configuration>
+</component>

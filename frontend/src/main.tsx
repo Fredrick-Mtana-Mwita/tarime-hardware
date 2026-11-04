@@ -1,0 +1,15 @@
+import { isClientPreview } from './shared/preview'
+import { PreviewNotice } from './preview/PreviewNotice'
+import './preview/styles.css'
+import { StrictMode } from 'react'
+import { createRoot } from 'react-dom/client'
+import { App } from './app/App'
+import './app/styles.css'
+import { AuthProvider } from './features/identity/AuthProvider'
+import './features/identity/styles.css'
+import './features/orders/styles.css'
+import './features/staff/styles.css'
+import './features/staff/workspace.css'
+import './features/staff/motion.css'
+
+createRoot(document.getElementById('root')!).render(<StrictMode><AuthProvider>{isClientPreview && <PreviewNotice />}<App /></AuthProvider></StrictMode>)

@@ -1,0 +1,14 @@
+node_modules/
+dist/
+target/
+.local/
+.env
+.env.*
+!.env.example
+!.env.test.example
+.idea/
+*.iml
+test-results/
+playwright-report/
+coverage/
+*.log
