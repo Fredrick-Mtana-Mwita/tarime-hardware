@@ -67,7 +67,7 @@ export function Inventory({ query, history = false }: { query: URLSearchParams; 
   function close() { setSelected(null) }
   function search(event: FormEvent<HTMLFormElement>) { event.preventDefault(); const data = new FormData(event.currentTarget); window.location.hash = link({ q: String(data.get('q') || '').trim(), branch: String(data.get('branch')), page: '0' }) }
   return <>
-    <div className="staff-page-heading"><div><p className="eyebrow">Stock that stays in sync</p><h1>{history ? 'Stock receipts' : 'Inventory'}</h1><p className="commerce-intro">{history ? 'A clear record of received materials, their source and the staff member responsible.' : 'The right materials. The right branch. A clear record.'}</p></div><button className="button secondary" onClick={resource.retry}>Refresh {history ? 'receipts' : 'stock'}</button></div>
+    <div className="staff-page-heading"><div><h1>{history ? 'Stock receipts' : 'Inventory'}</h1></div><button className="button secondary" onClick={resource.retry}>Refresh {history ? 'receipts' : 'stock'}</button></div>
     <form className="staff-filters inventory-filters" onSubmit={search}>
       <label htmlFor="inventory-branch">Branch<select id="inventory-branch" name="branch" value={branch} onChange={event => { setReceived(null); window.location.hash = link({ branch: event.target.value, page: '0' }) }}><option value="TARIME">Tarime (main branch)</option><option value="MWANZA">Mwanza</option></select></label>
       {!history && <><label htmlFor="inventory-search">Find materials<input key={q} id="inventory-search" name="q" type="search" defaultValue={q} maxLength={100} placeholder="Product, option or SKU" /></label><button className="button primary">Search inventory</button></>}

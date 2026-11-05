@@ -36,3 +36,37 @@
 @media(hover:none){.workspace-stats article:hover,.inventory-card:hover,.overview-branches>div>a:hover{transform:none}.inventory-card:hover>img{transform:none}}
 @media(prefers-reduced-motion:reduce){.staff-shell *,.staff-shell::before,.staff-shell::after,.receive-dialog[open]::backdrop{animation:none!important;transition:none!important;scroll-behavior:auto!important}.workspace-stats article,.inventory-card,.overview-branches>div>a,.inventory-card:hover>img,.staff-shell .button:hover,.staff-shell .button:active{transform:none!important}.staff-theme-reveal::view-transition-group(*),.staff-theme-reveal::view-transition-old(*),.staff-theme-reveal::view-transition-new(*){animation:none!important}}
 .staff-shell::before,.staff-shell::after{display:none}
+
+/* The inventory reference uses a slim tool rail and inset product photography. */
+.staff-shell .staff-nav {
+  background: var(--workspace-panel);
+  color: var(--workspace-text);
+  border-right: 1px solid var(--workspace-line);
+}
+.staff-shell .staff-nav a {
+  color: var(--workspace-text);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.staff-shell .staff-nav a:hover { background: #f2a90030; }
+.staff-shell .staff-nav svg { width: 19px; height: 19px; flex: none; }
+.staff-shell .sidebar-brand, .staff-shell .sidebar-label { display: none; }
+.staff-shell .inventory-card { padding: 8px; border-radius: 16px; }
+.staff-shell .inventory-card > img { border-radius: 10px; aspect-ratio: 4 / 3; height: auto; }
+.staff-shell .inventory-card-body { padding: 14px 6px 6px; }
+.staff-shell .inventory-quantities { margin: 12px 0; }
+.staff-shell .inventory-card .button { border-radius: 20px; }
+@media (min-width: 761px) {
+  .staff-shell { grid-template-columns: 78px minmax(0, 1fr); }
+  .staff-shell .staff-header { grid-column: 1 / -1; min-height: 64px; padding: 12px 24px; }
+  .staff-shell .staff-nav { grid-row: 2; min-height: auto; padding: 12px 6px; gap: 6px; }
+  .staff-shell .staff-nav a { flex-direction: column; justify-content: center; text-align: center; padding: 8px 2px; font-size: 10px; gap: 4px; }
+  .staff-shell .workspace-stats { margin: 16px 0; }
+  .staff-shell .workspace-stats article { padding: 14px 18px; gap: 6px; }
+}
+@media (min-width: 1200px) { .inventory-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+@media (max-width: 760px) {
+  .staff-shell .staff-nav { flex-wrap: nowrap; overflow-x: auto; }
+  .staff-shell .staff-nav a { flex: none; }
+}
