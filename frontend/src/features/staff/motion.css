@@ -70,3 +70,15 @@
   .staff-shell .staff-nav { flex-wrap: nowrap; overflow-x: auto; }
   .staff-shell .staff-nav a { flex: none; }
 }
+
+.staff-shell .inventory-card > img {
+  height: clamp(72px, 9vw, 112px);
+  object-fit: cover;
+}
+.staff-shell .inventory-card-body { padding: 8px 6px 4px; }
+.staff-shell .inventory-card-body p { margin-bottom: 2px; }
+.staff-shell .inventory-card h2 { margin: 2px 0; }
+.staff-shell .inventory-quantities { margin: 8px 0; padding-top: 7px; }
+.staff-shell .inventory-quantities dt { margin-bottom: 2px; }
+.staff-shell .inventory-warning { padding: 3px 8px; margin-bottom: 6px; }
+.staff-shell .workspace-stats:has(+ .inventory-grid) article { padding: 10px 14px; gap: 3px; }
