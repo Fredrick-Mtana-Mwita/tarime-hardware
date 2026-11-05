@@ -9,13 +9,13 @@
 .staff-nav>*:not(.staff-nav-indicator){position:relative;z-index:1}.staff-nav-indicator{position:absolute;top:0;left:0;border-radius:8px;background:#f2a900;pointer-events:none;opacity:0;box-shadow:0 5px 24px #f2a90020}
 .staff-shell .staff-nav a[aria-current=page]{background:transparent;color:#16191c}.staff-shell .staff-nav a{transition:color .18s,transform .25s}.staff-shell .staff-nav a:hover{transform:translateX(3px)}
 .workspace-theme-toggle{display:inline-flex;align-items:center;gap:8px;min-height:42px;padding:8px 12px;border:1px solid var(--workspace-line);border-radius:24px;background:var(--workspace-panel);color:var(--workspace-text);font-size:12px}.workspace-theme-toggle>span:first-child{font-size:20px;line-height:1}.workspace-theme-toggle:hover{border-color:#f2a900}
-.staff-content{perspective:1400px}.workspace-page{transform-origin:50% 15%;animation:workspace-page-in .65s cubic-bezier(.22,1,.36,1) both}
+.staff-content{perspective:1400px}.workspace-page{transform-origin:50% 15%;animation:workspace-page-in .24s cubic-bezier(.22,1,.36,1) both}
 .workspace-stats strong>span:not(.sr-only){font:inherit;color:inherit}
 .staff-shell{overflow-x:clip}
 .staff-content .commerce-panel,.workspace-stats article,.inventory-card{background:var(--workspace-panel);border-color:var(--workspace-line);backdrop-filter:blur(16px);box-shadow:0 12px 36px #00000008}
 .workspace-stats article,.inventory-card,.overview-branches>div>a{transform:perspective(1000px) rotateX(var(--tilt-x,0deg)) rotateY(var(--tilt-y,0deg)) translateZ(0);transition:transform .25s cubic-bezier(.22,1,.36,1),border-color .25s;transform-style:preserve-3d}
 .workspace-stats article:hover,.inventory-card:hover,.overview-branches>div>a:hover{border-color:#b78524;transform:perspective(1000px) rotateX(var(--tilt-x,0deg)) rotateY(var(--tilt-y,0deg)) translateY(-5px) translateZ(8px)}
-.workspace-stats article,.inventory-card,.overview-orders li,.receipt-list article{animation:workspace-card-in .65s cubic-bezier(.22,1,.36,1) both;animation-fill-mode:backwards}
+.workspace-stats article,.inventory-card,.overview-orders li,.receipt-list article{animation:workspace-card-in .32s cubic-bezier(.22,1,.36,1) both;animation-fill-mode:backwards}
 .workspace-stats article:nth-child(2),.inventory-card:nth-child(3n + 2),.overview-orders li:nth-child(2){animation-delay:70ms}.workspace-stats article:nth-child(3),.inventory-card:nth-child(3n + 3),.overview-orders li:nth-child(3){animation-delay:140ms}.overview-orders li:nth-child(4){animation-delay:210ms}.overview-orders li:nth-child(5){animation-delay:280ms}
 .inventory-card>img{transition:transform .55s cubic-bezier(.22,1,.36,1)}.inventory-card:hover>img{transform:scale(1.045)}
 .staff-shell .button{transition:transform .2s cubic-bezier(.22,1,.36,1),background-color .2s}.staff-shell .button:hover{transform:translateY(-2px)}.staff-shell .button:active{transform:translateY(0) scale(.97)}
@@ -26,13 +26,13 @@
 .staff-shell[data-theme=dark] input,.staff-shell[data-theme=dark] select{background:#11161b;color:#f8fafb;border-color:#4c5661}.staff-shell[data-theme=dark] .overview-branches>div>a:hover{background:#f2a90012}.staff-shell[data-theme=dark] .staff-success{background:#1a372a;color:#bde8cf}.staff-shell[data-theme=dark] .form-error{background:#3b2020;color:#ffd2d2}
 .staff-shell .receive-dialog{background:var(--workspace-panel);color:var(--workspace-text);backdrop-filter:blur(20px);border-color:var(--workspace-line)}.receive-dialog[open]{animation:workspace-dialog-in .36s cubic-bezier(.22,1,.36,1)}.receive-dialog[open]::backdrop{animation:workspace-backdrop-in .3s ease}
 .staff-theme-reveal::view-transition-old(root),.staff-theme-reveal::view-transition-new(root){animation:none;mix-blend-mode:normal}.staff-theme-reveal::view-transition-new(root){z-index:2}.staff-theme-reveal::view-transition-old(root){z-index:1}
-@keyframes workspace-page-in{from{opacity:0;transform:translateY(20px) rotateX(3deg) scale(.985)}to{opacity:1;transform:translateY(0) rotateX(0) scale(1)}}
-@keyframes workspace-card-in{from{opacity:0;translate:0 18px;scale:.97}to{opacity:1;translate:0 0;scale:1}}
+@keyframes workspace-page-in{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+@keyframes workspace-card-in{from{opacity:0;translate:0 6px}to{opacity:1;translate:0 0}}
 @keyframes workspace-dialog-in{from{opacity:0;transform:perspective(1000px) translateY(22px) rotateX(-5deg) scale(.96)}to{opacity:1;transform:perspective(1000px) translateY(0) rotateX(0) scale(1)}}
 @keyframes workspace-backdrop-in{from{opacity:0}to{opacity:1}}
 @keyframes workspace-orbit{from{transform:translate3d(0,0,0) rotate(-10deg)}to{transform:translate3d(-35px,30px,0) rotate(10deg)}}
 @media(max-width:760px){.staff-shell::before{width:220px;height:220px}.staff-header>div{gap:8px}.workspace-theme-toggle{padding:8px 10px}.staff-shell .staff-nav a:hover{transform:none}.workspace-page{animation-name:workspace-mobile-in}.staff-shell::after{display:none}}
-@keyframes workspace-mobile-in{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+@keyframes workspace-mobile-in{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
 @media(hover:none){.workspace-stats article:hover,.inventory-card:hover,.overview-branches>div>a:hover{transform:none}.inventory-card:hover>img{transform:none}}
 @media(prefers-reduced-motion:reduce){.staff-shell *,.staff-shell::before,.staff-shell::after,.receive-dialog[open]::backdrop{animation:none!important;transition:none!important;scroll-behavior:auto!important}.workspace-stats article,.inventory-card,.overview-branches>div>a,.inventory-card:hover>img,.staff-shell .button:hover,.staff-shell .button:active{transform:none!important}.staff-theme-reveal::view-transition-group(*),.staff-theme-reveal::view-transition-old(*),.staff-theme-reveal::view-transition-new(*){animation:none!important}}
 .staff-shell::before,.staff-shell::after{display:none}
