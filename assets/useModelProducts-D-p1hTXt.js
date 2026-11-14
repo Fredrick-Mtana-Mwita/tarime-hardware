@@ -1,0 +1,1 @@
+import{g as e,n as t}from"./index-DIJRKHI5.js";function n(){let n=e(`/api/products?size=48&sort=name`),r=t();return{items:n.data&&r.entries?n.data.items.flatMap(e=>{let t=r.entries?.get(e.id);return t?[{product:e,entry:t}]:[]}):void 0,version:r.version,error:n.error||r.error,retry:()=>{n.retry(),r.retry()}}}export{n as t};

@@ -1,0 +1,1 @@
+import{ModelStage as e}from"./ModelStage-BuICeBZB.js";import{b as t}from"./index-DIJRKHI5.js";var n=t();function r({model:t,verified:r,scale:i,name:a,fallback:o}){return(0,n.jsx)(e,{model:t,verified:r,scale:i,name:a,fallback:o})}export{r as ProductViewer};
