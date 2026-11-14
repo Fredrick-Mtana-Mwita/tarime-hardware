@@ -1,0 +1,111 @@
+/* 3D experience pages. Amber, charcoal and white; every control also works without the canvas. */
+.x3-page { padding-top: 1px; }
+.x3-page > h1 { font-size: 36px; letter-spacing: -0.7px; }
+.x3-page .intro { max-width: 720px; margin-bottom: 24px; }
+.x3-split { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(300px, 0.7fr); gap: 28px; align-items: start; }
+.x3-split { scroll-margin-top: 170px; }
+.x3-stage { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+.x3-canvas { position: relative; width: 100%; aspect-ratio: 4 / 3; border-radius: 20px; overflow: hidden; border: 1px solid var(--line); }
+.x3-canvas > img { width: 100%; height: 100%; object-fit: cover; }
+.x3-canvas-light { background: radial-gradient(90% 80% at 50% 35%, #ffffff 0%, #e9ebee 100%); }
+.x3-canvas-room { background: linear-gradient(#eef0f2, #dfe2e6); }
+.x3-canvas-hall { background: linear-gradient(#2c3238, #16191c); border-color: #16191c; aspect-ratio: 16 / 10; }
+.x3-stage:has(.scene3d[data-state='fallback']) .orbit-buttons, .x3-stage:has(.scene3d[data-state='fallback']) .x3-viewpoints { display: none; }
+.x3-note, .x3-version { font-size: 12px; line-height: 1.6; color: var(--muted); }
+.x3-fallback-text { margin: 24px; font-size: 14px; line-height: 1.7; color: var(--muted); }
+.x3-canvas-hall .x3-fallback-text { color: #d9dde1; }
+
+.x3-panel { display: flex; flex-direction: column; gap: 14px; padding: 24px; border: 1px solid var(--line); border-radius: 16px; background: #fff; min-width: 0; }
+.x3-panel h1 { font-size: 28px; overflow-wrap: anywhere; }
+.x3-panel h2 { font-size: 22px; }
+.x3-price { font-size: 26px; font-weight: 800; }
+.x3-price span { font-size: 13px; font-weight: 400; color: var(--muted); }
+.x3-blocked { padding: 12px 14px; border-radius: 10px; background: #fff4db; color: #533900; font-size: 13px; line-height: 1.6; }
+
+.x3-options { display: flex; flex-direction: column; gap: 8px; margin: 0; padding: 0; border: 0; min-width: 0; }
+.x3-options legend { padding: 0 0 8px; font-size: 13px; font-weight: 800; }
+.x3-options label { display: flex; align-items: center; gap: 12px; min-height: 52px; padding: 10px 12px; border: 1px solid #d5d9de; border-radius: 10px; cursor: pointer; font-size: 13px; }
+.x3-options label.selected { border: 2px solid var(--ink); padding: 9px 11px; background: #fff4db; }
+.x3-options label:focus-within { outline: 3px solid #8a5300; outline-offset: 2px; }
+.x3-options input { width: 18px; height: 18px; flex-shrink: 0; accent-color: var(--ink); }
+.x3-options label > span { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.x3-options small { font-size: 11px; color: var(--muted); }
+.x3-options small.available-text { color: #1a6b3c; }
+.x3-options .x3-option-price { margin-left: auto; align-items: flex-end; font-weight: 800; white-space: nowrap; }
+.x3-options.x3-inline { flex-direction: row; flex-wrap: wrap; }
+.x3-options.x3-inline label { flex: 1 1 130px; }
+.x3-options.active legend { color: #8a5300; }
+.x3-options.active legend::after { content: ' · selected in the picture'; font-weight: 400; }
+
+.x3-buy { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.x3-buy h3 { font-size: 20px; overflow-wrap: anywhere; }
+.x3-buy h3 a { text-decoration: underline; text-decoration-color: var(--amber); text-underline-offset: 4px; }
+.x3-buy .variant-options { margin: 6px 0; }
+.x3-buy .availability { margin: 0; }
+.x3-buy.compact h3 { font-size: 16px; }
+.x3-buy.compact .x3-price { font-size: 20px; }
+.x3-buy-list { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; margin: 20px 0 14px; padding: 0; list-style: none; }
+.x3-buy-list li { padding: 20px; border: 1px solid var(--line); border-radius: 16px; background: #fff; min-width: 0; }
+
+.x3-viewpoints { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
+.x3-viewpoints button { min-height: 44px; min-width: 44px; padding: 6px 14px; border: 1px solid #d5d9de; border-radius: 999px; background: #fff; color: var(--ink); font-size: 13px; font-weight: 700; }
+.x3-viewpoints button[aria-pressed='true'] { background: var(--ink); border-color: var(--ink); color: #fff; }
+
+.x3-zone { margin-top: 24px; }
+.x3-zone h3 { margin-bottom: 12px; }
+.x3-cards { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; margin: 0; padding: 0; list-style: none; }
+.x3-cards li { display: flex; flex-direction: column; border: 1px solid var(--line); border-radius: 14px; overflow: hidden; background: #fff; }
+.x3-cards a { display: flex; flex-direction: column; flex: 1; }
+.x3-cards img { width: 100%; height: 130px; object-fit: cover; }
+.x3-cards a > span { display: flex; flex-direction: column; gap: 4px; padding: 12px 14px; }
+.x3-cards strong { font-size: 14px; line-height: 1.4; }
+.x3-cards small { font-size: 12px; color: var(--muted); }
+.x3-cards button { min-height: 44px; margin: 0 14px 14px; border: 1px solid #9a7225; border-radius: 8px; background: #fff; color: var(--ink); font-size: 13px; font-weight: 700; }
+
+.x3-banner { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: center; overflow: hidden; border-radius: 20px; color: #fff;
+  background: radial-gradient(120% 100% at 80% 40%, #343b42 0%, #16191c 65%); }
+.x3-banner-copy { padding: 44px 48px; }
+.x3-banner-copy .eyebrow { color: var(--amber); }
+.x3-banner-copy h1 { font-size: 46px; letter-spacing: -1px; }
+.x3-banner-copy h2 { font-size: 34px; }
+.x3-banner-copy p:not(.eyebrow) { margin: 16px 0 22px; line-height: 1.7; color: #d9dde1; }
+.x3-banner-art { position: relative; height: 320px; }
+.x3-hero { margin-top: 24px; }
+.x3-hero .x3-banner-art { height: 420px; }
+
+.x3-doors { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; margin: 0; padding: 0; list-style: none; }
+.x3-doors a { display: flex; flex-direction: column; gap: 10px; height: 100%; padding: 22px; border: 1px solid var(--line); border-top: 4px solid var(--amber); border-radius: 12px; background: #fff; transition: box-shadow 0.2s; }
+.x3-doors a:hover { box-shadow: 0 10px 24px #16191c1f; }
+.x3-doors h2 { font-size: 18px; }
+.x3-doors p { flex: 1; font-size: 13px; line-height: 1.6; color: var(--muted); }
+.x3-doors span { font-size: 13px; font-weight: 700; color: #8a5300; }
+.x3-about ul { margin: 16px 0 20px; padding-left: 20px; font-size: 14px; line-height: 1.8; color: var(--muted); max-width: 760px; }
+.x3-toggle { min-height: 44px; padding: 8px 16px; border: 1px solid #9a7225; border-radius: 10px; background: #fff; color: var(--ink); font-size: 13px; font-weight: 700; }
+.site-footer .x3-toggle { margin-left: 16px; min-height: 32px; padding: 4px 10px; border-color: #5b636b; background: transparent; color: inherit; font-size: 11px; }
+
+.view-switch { display: flex; gap: 8px; margin-bottom: 12px; }
+.view-switch button { min-height: 44px; padding: 8px 16px; border: 1px solid #d5d9de; border-radius: 10px; background: #fff; font-size: 13px; font-weight: 700; }
+.view-switch button[aria-pressed='true'] { background: var(--ink); border-color: var(--ink); color: #fff; }
+.category-nav a.experience-nav-link { color: #8a5300; border-bottom: 2px solid var(--amber); }
+
+@media (min-width: 761px) and (max-width: 1100px) {
+  .x3-split { grid-template-columns: minmax(0, 1fr); }
+  .x3-cards, .x3-doors { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .x3-buy-list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .x3-banner-copy { padding: 36px 32px; }
+  .x3-banner-copy h1 { font-size: 38px; }
+}
+@media (max-width: 760px) {
+  .x3-page > h1 { font-size: 28px; }
+  .x3-split { grid-template-columns: minmax(0, 1fr); gap: 20px; }
+  .x3-canvas, .x3-canvas-hall { aspect-ratio: 1 / 1; border-radius: 16px; }
+  .x3-panel { padding: 18px; }
+  .x3-cards { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+  .x3-doors, .x3-buy-list { grid-template-columns: minmax(0, 1fr); }
+  .x3-banner { grid-template-columns: minmax(0, 1fr); }
+  .x3-banner-copy { padding: 28px 24px 8px; }
+  .x3-banner-copy h1 { font-size: 34px; }
+  .x3-banner-copy h2 { font-size: 26px; }
+  .x3-banner-art, .x3-hero .x3-banner-art { height: 240px; }
+  .site-footer .x3-toggle { margin: 10px 0 0; display: block; }
+}
