@@ -69,6 +69,9 @@ export function previewRead(path: string): unknown {
     return {items:items.slice(page*size,(page+1)*size),total:items.length,lowStockCount:items.filter(i=>i.lowStock).length,page,size}
   }
   if (url.pathname === '/api/staff/orders') return {items:[],total:0,pendingCount:0,page,size}
+  if (url.pathname === '/api/staff/finance/orders') return {items:[],total:0,page,size}
+  if (url.pathname === '/api/staff/finance/adjustments') return []
+  if (url.pathname === '/api/staff/finance/summary') return {date:p.get('date')||'',currency:'TZS',cash:0,mobileMoney:0,received:0,payments:0,reversed:0,refunded:0,net:0,completedSales:0,completedOrders:0}
   if (url.pathname === '/api/staff/inventory/receipts') return {items:[],total:0,page,size}
   if (['/api/staff/accounts','/api/staff/notifications','/api/notifications'].includes(url.pathname)) return []
   throw new ApiError(404)

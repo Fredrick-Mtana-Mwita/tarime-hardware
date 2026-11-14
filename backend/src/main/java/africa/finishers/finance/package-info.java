@@ -1,5 +1,5 @@
 /**
- * Manual receipts, completed sales, balances, linked corrections/refunds, and financial reconciliation. No payment gateway in V1.
- * Feature implementation follows the approved requirements; this package declares its boundary.
+ * Manual payments, receipts, Owner-approved reversals and refunds, balances, and the daily money summary.
+ * Money records are append-only (C2/C4). Payments are staff-recorded until a provider is integrated (FR-20, BR-08).
  */
 package africa.finishers.finance;

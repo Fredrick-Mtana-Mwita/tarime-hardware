@@ -13,7 +13,7 @@ import { useAuth } from '../features/identity/useAuth'
 import { useCart } from '../features/cart/store'
 import { CartPage } from '../features/cart/CartPage'
 import { CheckoutPage } from '../features/orders/CheckoutPage'
-import { MyOrdersPage, OrderDetailPage } from '../features/orders/OrderPages'
+import { MyOrdersPage, OrderDetailPage, OrderReceiptPage } from '../features/orders/OrderPages'
 import { StaffApp } from '../features/staff/StaffApp'
 import { DesignPage } from '../features/design/DesignPage'
 import { ExperienceRoute } from '../experiences/ExperienceRoute'
@@ -64,6 +64,7 @@ export function App() {
       : path === '/design-services' ? <DesignPage /> : path === '/3d' || path.startsWith('/3d/') ? <ExperienceRoute path={path} params={params} /> : path === '/account' ? <AccountPage />
       : path === '/cart' ? <CartPage /> : path === '/checkout' ? <CheckoutPage />
       : path === '/orders' ? <MyOrdersPage key={user?.id || 'guest'} />
+      : /^\/orders\/[^/]+\/receipts\/[^/]+$/.test(path) ? <OrderReceiptPage key={(user?.id || 'guest') + path} id={path.split('/')[2]} receiptNumber={path.split('/')[4]} />
       : path.startsWith('/orders/') ? <OrderDetailPage key={(user?.id || 'guest') + path} id={path.split('/')[2]} />
       : <div className="container load-state"><h1>Page not found</h1><a className="button primary" href="#/shop">Browse products</a></div>}</main>
     <footer className="site-footer"><div className="container footer-row"><div><strong>TARIME HARDWARE</strong><p>Everything to build and finish.</p></div><div><a href="#/shop">Browse all products</a><p><a href="#/design-services">Interior and exterior design</a></p><p><a href="#/3d">3D experience</a></p><p>Tarime</p></div></div>
