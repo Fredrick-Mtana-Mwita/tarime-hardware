@@ -29,6 +29,7 @@ public class JdbcOrderRepository implements OrderRepository {
         return jdbc.query("SELECT id,request_hash FROM app.customer_orders WHERE customer_id=? AND idempotency_key=?",
                 (r,n)->new Existing(r.getObject(1,UUID.class),r.getString(2)),customerId,key).stream().findFirst();
     }
+    public boolean branchOpen(String branch){return Boolean.TRUE.equals(jdbc.queryForObject("SELECT EXISTS(SELECT 1 FROM app.branches WHERE code=? AND active)",Boolean.class,branch));}
     public boolean submissionLimitReached(UUID customerId){
         return jdbc.queryForObject("SELECT count(*)>=20 FROM app.customer_orders WHERE customer_id=? AND created_at>now()-interval '1 hour'",Boolean.class,customerId);
     }

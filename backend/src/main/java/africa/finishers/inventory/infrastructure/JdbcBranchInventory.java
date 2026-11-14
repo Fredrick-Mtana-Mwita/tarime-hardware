@@ -27,6 +27,7 @@ public class JdbcBranchInventory implements BranchInventory.Store {
     public History history(String branch,int page,int size){
         return new History(jdbc.query(RECEIPTS+"WHERE r.branch_code=? ORDER BY r.received_at DESC,r.id LIMIT ? OFFSET ?",RECEIPT,branch,size,page*size),jdbc.queryForObject("SELECT count(*) FROM app.stock_receipts WHERE branch_code=?",Long.class,branch),page,size);
     }
+    public boolean branchOpen(String branch){return Boolean.TRUE.equals(jdbc.queryForObject("SELECT EXISTS(SELECT 1 FROM app.branches WHERE code=? AND active)",Boolean.class,branch));}
     public Receipt receive(UUID actor,Receive request){
         // Serialize identical request identities before looking up a previous result. Hash collisions only serialize unrelated receipts.
         jdbc.query("SELECT pg_advisory_xact_lock(?)",r->{},request.id().getMostSignificantBits()^request.id().getLeastSignificantBits());

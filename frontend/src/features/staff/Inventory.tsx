@@ -51,7 +51,7 @@ function ReceiveStock({ item, branch, onClose, onReceived }: { item: Item; branc
   </dialog>
 }
 export function Inventory({ query, history = false }: { query: URLSearchParams; history?: boolean }) {
-  const branch: Branch = query.get('branch') === 'MWANZA' ? 'MWANZA' : 'TARIME'
+  const branch: Branch = 'TARIME'
   const page = Math.max(0, Number(query.get('page')) || 0), q = query.get('q') || ''
   const params = new URLSearchParams({ branch, q, page: String(page), size: history ? '10' : '12' })
   const resource = useWorkspaceData<StockPage & History>('/api/staff/inventory' + (history ? '/receipts' : '') + '?' + params)
@@ -69,7 +69,7 @@ export function Inventory({ query, history = false }: { query: URLSearchParams; 
   return <>
     <div className="staff-page-heading"><div><h1>{history ? 'Stock receipts' : 'Inventory'}</h1></div><button className="button secondary" onClick={resource.retry}>Refresh {history ? 'receipts' : 'stock'}</button></div>
     <form className="staff-filters inventory-filters" onSubmit={search}>
-      <label htmlFor="inventory-branch">Branch<select id="inventory-branch" name="branch" value={branch} onChange={event => { setReceived(null); window.location.hash = link({ branch: event.target.value, page: '0' }) }}><option value="TARIME">Tarime (main branch)</option><option value="MWANZA">Mwanza</option></select></label>
+      <label htmlFor="inventory-branch">Branch<select id="inventory-branch" name="branch" value={branch} onChange={event => { setReceived(null); window.location.hash = link({ branch: event.target.value, page: '0' }) }}><option value="TARIME">Tarime (main branch)</option></select></label>
       {!history && <><label htmlFor="inventory-search">Find materials<input key={q} id="inventory-search" name="q" type="search" defaultValue={q} maxLength={100} placeholder="Product, option or SKU" /></label><button className="button primary">Search inventory</button></>}
       <a className="text-link" href={`#/staff/${history ? 'inventory' : 'receipts'}?branch=${branch}`}>{history ? 'View inventory' : 'View receipt history'}</a>
     </form>

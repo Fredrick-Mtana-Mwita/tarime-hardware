@@ -9,6 +9,7 @@ public interface OrderRepository {
     record Existing(UUID id,String hash) {}
     Optional<Existing> existing(UUID customerId,UUID key);
     boolean submissionLimitReached(UUID customerId);
+    boolean branchOpen(String branch);
     void save(UUID id,String reference,UUID customerId,UUID key,String hash,Submission request,Quote quote);
     Optional<Order> find(UUID customerId,UUID orderId);
     OrderPage list(UUID customerId,int page,int size);

@@ -49,7 +49,7 @@ export function AuthPage({ mode, next = null }: { mode: 'login' | 'register'; ne
       <div className="auth-form-slot"><AuthForm key={mode} mode={mode} next={next} /></div>
       <aside className="auth-welcome">
         <p className="eyebrow">Your next project starts here</p>
-        <h2>{creating ? 'Welcome back!' : 'Hello, friend!'}</h2>
+        <h2>{creating ? 'Welcome back!' : 'New to Tarime Hardware?'}</h2>
         <p>{creating ? 'Already part of Tarime Hardware? Sign in and get ready for your next build.' : 'Great projects start with the right materials. Create your account and start your next build with us.'}</p>
         <a className="button auth-panel-switch" href={(creating ? '#/login' : '#/register') + (next === 'checkout' || next === 'orders' ? '?next=' + next : '')}>{creating ? 'Sign in' : 'Create an account'}</a>
       </aside>

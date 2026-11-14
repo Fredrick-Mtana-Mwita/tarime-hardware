@@ -54,30 +54,33 @@ class InventoryIT {
         assertThat(receipt.onHandAfter()).isEqualByComparingTo("17");assertThat(receipt.reservedAfter()).isEqualByComparingTo("4");
         assertThat(inventory.receive(actor,request).id()).isEqualTo(receipt.id());
         assertThat(balance(variant,"TARIME","on_hand")).isEqualByComparingTo("17");
-        inventory.receive(actor,request(UUID.randomUUID(),variant,"MWANZA","3"));
-        assertThat(balance(variant,"MWANZA","on_hand")).isEqualByComparingTo("3");assertThat(balance(variant,"MWANZA","reserved")).isZero();
+        // Mwanza is closed (V11): its history stays readable, but it accepts no new stock and Tarime is untouched.
+        assertThatThrownBy(()->inventory.receive(actor,request(UUID.randomUUID(),variant,"MWANZA","3"))).isInstanceOf(AuthProblem.class).hasMessageContaining("closed")
+            .extracting(problem->((AuthProblem)problem).status()).isEqualTo(409);
+        assertThat(jdbc.queryForObject("SELECT count(*) FROM app.stock_balances WHERE variant_id=? AND branch_code='MWANZA'",Long.class,variant)).isZero();
+        assertThat(inventory.history(actor,"MWANZA",0,48).items()).noneMatch(r->r.variantId().equals(variant));
         assertThat(balance(variant,"TARIME","on_hand")).isEqualByComparingTo("17");
         assertThat(jdbc.queryForObject("SELECT count(*) FROM app.audit_events WHERE target_reference=?",Long.class,receipt.id().toString())).isEqualTo(1);
         assertThat(inventory.history(actor,"TARIME",0,48).items()).anyMatch(r->r.id().equals(receipt.id()));
     }
     @Test void duplicateConcurrentReceiptsAddStockOnceAndRejectChangedPayload() throws Exception {
-        var actor=actor(StaffRole.INVENTORY);var variant=variant(false);var request=request(UUID.randomUUID(),variant,"MWANZA","5");
+        var actor=actor(StaffRole.INVENTORY);var variant=variant(false);var request=request(UUID.randomUUID(),variant,"TARIME","5");
         var start=new CountDownLatch(1);
         try(var pool=Executors.newFixedThreadPool(2)){
             var a=pool.submit(()->{start.await();return inventory.receive(actor,request);});
             var b=pool.submit(()->{start.await();return inventory.receive(actor,request);});start.countDown();
             assertThat(a.get(30,TimeUnit.SECONDS).id()).isEqualTo(b.get(30,TimeUnit.SECONDS).id());
         }
-        assertThat(balance(variant,"MWANZA","on_hand")).isEqualByComparingTo("5");
-        assertThatThrownBy(()->inventory.receive(actor,request(request.id(),variant,"MWANZA","6"))).isInstanceOf(AuthProblem.class).hasMessageContaining("different details");
+        assertThat(balance(variant,"TARIME","on_hand")).isEqualByComparingTo("15");
+        assertThatThrownBy(()->inventory.receive(actor,request(request.id(),variant,"TARIME","6"))).isInstanceOf(AuthProblem.class).hasMessageContaining("different details");
     }
     @Test void concurrentDistinctReceiptsAccumulateWithoutLostUpdates() throws Exception {
         var actor=actor(StaffRole.INVENTORY);var variant=variant(false);var start=new CountDownLatch(1);
         try(var pool=Executors.newFixedThreadPool(2)){
-            var a=pool.submit(()->{start.await();return inventory.receive(actor,request(UUID.randomUUID(),variant,"MWANZA","5"));});
-            var b=pool.submit(()->{start.await();return inventory.receive(actor,request(UUID.randomUUID(),variant,"MWANZA","7"));});start.countDown();a.get(30,TimeUnit.SECONDS);b.get(30,TimeUnit.SECONDS);
+            var a=pool.submit(()->{start.await();return inventory.receive(actor,request(UUID.randomUUID(),variant,"TARIME","5"));});
+            var b=pool.submit(()->{start.await();return inventory.receive(actor,request(UUID.randomUUID(),variant,"TARIME","7"));});start.countDown();a.get(30,TimeUnit.SECONDS);b.get(30,TimeUnit.SECONDS);
         }
-        assertThat(balance(variant,"MWANZA","on_hand")).isEqualByComparingTo("12");
+        assertThat(balance(variant,"TARIME","on_hand")).isEqualByComparingTo("22");assertThat(balance(variant,"TARIME","reserved")).isEqualByComparingTo("4");
     }
     @Test void unitBranchAndRoleValidationPreventsAnyMovement(){
         var actor=actor(StaffRole.INVENTORY);var variant=variant(false);
@@ -85,7 +88,7 @@ class InventoryIT {
         assertThatThrownBy(()->inventory.receive(actor,request(UUID.randomUUID(),variant,"INVALID","1"))).isInstanceOf(AuthProblem.class);
         for(var role:List.of(StaffRole.SALES,StaffRole.DELIVERY)){var denied=actor(role);assertThatThrownBy(()->inventory.receive(denied,request(UUID.randomUUID(),variant,"TARIME","1"))).isInstanceOf(AuthProblem.class);assertThatThrownBy(()->inventory.list(denied,"TARIME","",0,12)).isInstanceOf(AuthProblem.class);}
         var owner=actor(StaffRole.OWNER);assertThat(inventory.receive(owner,request(UUID.randomUUID(),variant,"TARIME","1")).onHandAfter()).isEqualByComparingTo("11");
-        UUID fractional=variant(true);assertThat(inventory.receive(actor,request(UUID.randomUUID(),fractional,"MWANZA","1.125")).quantity()).isEqualByComparingTo("1.125");
+        UUID fractional=variant(true);assertThat(inventory.receive(actor,request(UUID.randomUUID(),fractional,"TARIME","1.125")).quantity()).isEqualByComparingTo("1.125");
     }
     @Test void rollbackLeavesNoReceiptMovementOrAuditAndHistoryCannotBeMutated(){
         var actor=actor(StaffRole.INVENTORY);var variant=variant(false);var request=request(UUID.randomUUID(),variant,"TARIME","5");
@@ -104,11 +107,15 @@ class InventoryIT {
         var guest=client.send(HttpRequest.newBuilder(URI.create(base+"/api/staff/inventory?branch=TARIME")).build(),HttpResponse.BodyHandlers.ofString());assertThat(guest.statusCode()).isEqualTo(401);
         var csrf=client.send(HttpRequest.newBuilder(URI.create(base+"/api/security/csrf")).build(),HttpResponse.BodyHandlers.ofString());String token=json.readTree(csrf.body()).get("token").asText();
         var login=client.send(HttpRequest.newBuilder(URI.create(base+"/api/staff/auth/login")).header("Content-Type","application/json").header("X-CSRF-TOKEN",token).POST(HttpRequest.BodyPublishers.ofString(json.writeValueAsString(Map.of("username",actor.username(),"password",PASSWORD)))).build(),HttpResponse.BodyHandlers.ofString());assertThat(login.statusCode()).isEqualTo(200);
-        String body=json.writeValueAsString(request(UUID.randomUUID(),variant,"MWANZA","2"));
+        String body=json.writeValueAsString(request(UUID.randomUUID(),variant,"TARIME","2"));
         var denied=client.send(HttpRequest.newBuilder(URI.create(base+"/api/staff/inventory/receipts")).header("Content-Type","application/json").POST(HttpRequest.BodyPublishers.ofString(body)).build(),HttpResponse.BodyHandlers.ofString());assertThat(denied.statusCode()).isEqualTo(403);
         csrf=client.send(HttpRequest.newBuilder(URI.create(base+"/api/security/csrf")).build(),HttpResponse.BodyHandlers.ofString());token=json.readTree(csrf.body()).get("token").asText();
-        var ok=client.send(HttpRequest.newBuilder(URI.create(base+"/api/staff/inventory/receipts")).header("Content-Type","application/json").header("X-CSRF-TOKEN",token).POST(HttpRequest.BodyPublishers.ofString(body)).build(),HttpResponse.BodyHandlers.ofString());assertThat(ok.statusCode()).isEqualTo(200);assertThat(ok.body()).contains("MWANZA");
-        assertThat(balance(variant,"MWANZA","on_hand")).isEqualByComparingTo("2");
+        var ok=client.send(HttpRequest.newBuilder(URI.create(base+"/api/staff/inventory/receipts")).header("Content-Type","application/json").header("X-CSRF-TOKEN",token).POST(HttpRequest.BodyPublishers.ofString(body)).build(),HttpResponse.BodyHandlers.ofString());assertThat(ok.statusCode()).isEqualTo(200);assertThat(ok.body()).contains("TARIME");
+        assertThat(balance(variant,"TARIME","on_hand")).isEqualByComparingTo("12");
+        // A closed branch gives a clear conflict over HTTP, not a server error.
+        csrf=client.send(HttpRequest.newBuilder(URI.create(base+"/api/security/csrf")).build(),HttpResponse.BodyHandlers.ofString());token=json.readTree(csrf.body()).get("token").asText();
+        var closed=client.send(HttpRequest.newBuilder(URI.create(base+"/api/staff/inventory/receipts")).header("Content-Type","application/json").header("X-CSRF-TOKEN",token).POST(HttpRequest.BodyPublishers.ofString(json.writeValueAsString(request(UUID.randomUUID(),variant,"MWANZA","2")))).build(),HttpResponse.BodyHandlers.ofString());
+        assertThat(closed.statusCode()).isEqualTo(409);assertThat(closed.body()).contains("closed");
         jdbc.update("UPDATE app.staff_accounts SET role='SALES',session_version=session_version+1 WHERE id=?",actor.id());
         assertThat(client.send(HttpRequest.newBuilder(URI.create(base+"/api/staff/inventory?branch=MWANZA")).build(),HttpResponse.BodyHandlers.ofString()).statusCode()).isIn(401,403);
     }

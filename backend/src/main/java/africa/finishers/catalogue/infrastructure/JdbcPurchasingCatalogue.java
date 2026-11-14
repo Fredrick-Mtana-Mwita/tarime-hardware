@@ -16,7 +16,7 @@ public class JdbcPurchasingCatalogue implements PurchasingCatalogue {
         // All callers lock variants in the same order. The order service owns the transaction.
         return jdbc.query("""
                 SELECT v.id,v.product_id,p.name,v.label,v.sku,u.label AS unit,u.fractional,
-                       v.unit_price,v.currency,COALESCE((SELECT sum(s.on_hand-s.reserved) FROM app.stock_balances s WHERE s.variant_id=v.id AND (:branch='' OR s.branch_code=:branch)),0) AS available
+                       v.unit_price,v.currency,COALESCE((SELECT sum(s.on_hand-s.reserved) FROM app.stock_balances s WHERE s.branch_code='TARIME' AND s.variant_id=v.id AND (:branch='' OR s.branch_code=:branch)),0) AS available
                 FROM app.product_variants v JOIN app.products p ON p.id=v.product_id
                 JOIN app.categories c ON c.id=p.category_id JOIN app.units u ON u.code=v.unit_code
                 WHERE v.id IN (:ids) AND v.published AND p.published AND NOT p.archived

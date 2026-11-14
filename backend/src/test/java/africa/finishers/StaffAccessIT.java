@@ -201,6 +201,33 @@ class StaffAccessIT {
         java.nio.file.Files.writeString(root.resolve(".local/staff-browser-fixtures.json"),JSON.writeValueAsString(fixture));
     }
 
+    @Test void deliveryConsumesOnlyAssignedBranchStockAtDispatchAndRecordsProofOnce() throws Exception {
+        UUID id=orderFixture("Delivery handover","DELIVERY","CONFIRMED");
+        var sales=fixture(StaffRole.SALES,false);
+        var assigned=fixture(StaffRole.DELIVERY,false);
+        var other=fixture(StaffRole.DELIVERY,false);
+        UUID variant=jdbc.queryForObject("SELECT variant_id FROM app.customer_order_items WHERE order_id=?",UUID.class,id);
+        // Only Tarime is open (V11), so the branch isolation is checked against a second Tarime product balance instead.
+        java.math.BigDecimal otherBefore=jdbc.queryForObject("SELECT COALESCE(sum(on_hand),0) FROM app.stock_balances WHERE branch_code='TARIME' AND variant_id<>?",java.math.BigDecimal.class,variant);
+        jdbc.update("UPDATE app.customer_orders SET branch_code='TARIME' WHERE id=?",id);
+        jdbc.update("INSERT INTO app.stock_balances(variant_id,branch_code,on_hand,reserved) VALUES(?,'TARIME',5,2) ON CONFLICT (variant_id,branch_code) DO UPDATE SET on_hand=5,reserved=2",variant);
+        jdbc.update("INSERT INTO app.order_confirmations(order_id,actor_id,branch_code,delivery_fee,agreed_total,agreement_note) VALUES(?,?,'TARIME',0,37,'Customer agreed by phone')",id,sales.id());
+        jdbc.update("INSERT INTO app.stock_reservations VALUES(?,?,'TARIME',2,2)",id,variant);
+        var desk=new Browser();desk.login(sales,"");
+        String path="/api/staff/fulfilment/"+id;
+        assertThat(desk.post(path,Map.of("target","READY_FOR_DELIVERY","driver",assigned.id())).statusCode()).isEqualTo(200);
+        var stranger=new Browser();stranger.login(other,"");
+        assertThat(stranger.get("/api/staff/fulfilment").body()).doesNotContain(id.toString());
+        assertThat(stranger.post(path,Map.of("target","OUT_FOR_DELIVERY")).statusCode()).isEqualTo(404);
+        var driver=new Browser();driver.login(assigned,"");
+        assertThat(driver.post(path,Map.of("target","OUT_FOR_DELIVERY")).statusCode()).isEqualTo(200);
+        assertThat(driver.post(path,Map.of("target","OUT_FOR_DELIVERY")).statusCode()).isEqualTo(200);
+        assertThat(jdbc.queryForObject("SELECT on_hand FROM app.stock_balances WHERE branch_code='TARIME' AND variant_id=?",Integer.class,variant)).isEqualTo(3);
+        assertThat(driver.post(path,Map.of("target","DELIVERED","acknowledged",true,"recipient","Delivery tester")).statusCode()).isEqualTo(200);
+        assertThat(jdbc.queryForList("SELECT on_hand::int FROM app.stock_balances WHERE variant_id=?",Integer.class,variant)).containsExactly(3);
+        assertThat(jdbc.queryForObject("SELECT COALESCE(sum(on_hand),0) FROM app.stock_balances WHERE branch_code='TARIME' AND variant_id<>?",java.math.BigDecimal.class,variant)).isEqualByComparingTo(otherBefore);
+        assertThat(jdbc.queryForObject("SELECT recipient FROM app.fulfilment_events WHERE order_id=? AND status='DELIVERED' AND actor_id=?",String.class,id,assigned.id())).isEqualTo("Delivery tester");
+    }
     @Test void salesHttpConfirmationRequiresCsrfAndReturnsConfirmedBranch() throws Exception {
         UUID id=orderFixture("Confirmation HTTP "+UUID.randomUUID(),"PICKUP","PENDING");
         jdbc.update("UPDATE app.customer_orders SET branch_code='TARIME' WHERE id=?",id);
@@ -212,6 +239,14 @@ class StaffAccessIT {
         String token=b.csrf;b.csrf="invalid";assertThat(b.post("/api/staff/orders/"+id+"/confirm",agreement).statusCode()).isEqualTo(403);b.csrf=token;
         var response=b.post("/api/staff/orders/"+id+"/confirm",agreement);assertThat(response.statusCode()).isEqualTo(200);assertThat(response.body()).contains("CONFIRMED","TARIME");
         assertThat(b.post("/api/staff/orders/"+id+"/confirm",agreement).statusCode()).isEqualTo(200);
+        String job="/api/staff/fulfilment/"+id;
+        assertThat(b.post(job,Map.of("target","READY_FOR_PICKUP")).statusCode()).isEqualTo(200);
+        assertThat(b.post(job,Map.of("target","COLLECTED")).statusCode()).isEqualTo(400);
+        var proof=Map.of("target","COLLECTED","recipient","Pickup tester","acknowledged",true);
+        assertThat(b.post(job,proof).statusCode()).isEqualTo(200);
+        assertThat(b.post(job,proof).statusCode()).isEqualTo(200);
+        assertThat(jdbc.queryForObject("SELECT count(*) FROM app.fulfilment_events WHERE order_id=? AND status='COLLECTED' AND recipient=? AND actor_id=?",Integer.class,id,"Pickup tester",f.id())).isOne();
+        assertThat(jdbc.queryForObject("SELECT sum(remaining) FROM app.stock_reservations WHERE order_id=?",java.math.BigDecimal.class,id)).isZero();
         jdbc.update("UPDATE app.categories SET published=false WHERE id IN (SELECT category_id FROM app.products WHERE id IN (SELECT product_id FROM app.customer_order_items WHERE order_id=?))",id);
     }
 }

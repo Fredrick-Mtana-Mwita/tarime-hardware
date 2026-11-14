@@ -181,15 +181,17 @@ class CustomerOrdersIT {
         var raw=request(Fulfilment.PICKUP,"1");
         var missing=new Submission(raw.items(),raw.fulfilment(),raw.name(),phone,"","",null);
         assertThatThrownBy(()->orders.submit(phone,UUID.randomUUID(),missing)).isInstanceOf(OrderProblem.class);
+        // Mwanza holds no stock and is closed (V11): it cannot lend Tarime stock and takes no new orders.
         assertThatThrownBy(()->orders.quote(List.of(new Selection(whole,BigDecimal.ONE)),Branch.MWANZA)).isInstanceOf(OrderProblem.class);
-        jdbc.update("INSERT INTO app.stock_balances(variant_id,branch_code,on_hand) VALUES(?,'MWANZA',2)",whole);
-        assertThat(orders.quote(List.of(new Selection(whole,BigDecimal.ONE)),Branch.MWANZA).items().getFirst().available()).isEqualByComparingTo("2");
+        assertThatThrownBy(()->jdbc.update("INSERT INTO app.stock_balances(variant_id,branch_code,on_hand) VALUES(?,'MWANZA',2)",whole)).isInstanceOf(org.springframework.dao.DataAccessException.class);
         var mwanza=new Submission(raw.items(),raw.fulfilment(),raw.name(),phone,"","",Branch.MWANZA);
-        UUID key=UUID.randomUUID();var order=orders.submit(phone,key,mwanza);
-        assertThatThrownBy(()->orders.submit(phone,key,raw)).isInstanceOf(OrderProblem.class);
+        assertThatThrownBy(()->orders.submit(phone,UUID.randomUUID(),mwanza)).isInstanceOf(OrderProblem.class).hasMessageContaining("closed");
+        UUID key=UUID.randomUUID();var order=orders.submit(phone,key,raw);
+        assertThatThrownBy(()->orders.submit(phone,key,mwanza)).isInstanceOf(OrderProblem.class);
+        BigDecimal before=jdbc.queryForObject("SELECT reserved FROM app.stock_balances WHERE variant_id=? AND branch_code='TARIME'",BigDecimal.class,whole);
         confirmation.confirm(sales(),order.summary().id(),agreed("0"));
-        assertThat(jdbc.queryForObject("SELECT reserved FROM app.stock_balances WHERE variant_id=? AND branch_code='TARIME'",BigDecimal.class,whole)).isZero();
-        assertThat(jdbc.queryForObject("SELECT reserved FROM app.stock_balances WHERE variant_id=? AND branch_code='MWANZA'",BigDecimal.class,whole)).isEqualByComparingTo("1");
+        assertThat(jdbc.queryForObject("SELECT reserved FROM app.stock_balances WHERE variant_id=? AND branch_code='TARIME'",BigDecimal.class,whole)).isEqualByComparingTo(before.add(BigDecimal.ONE));
+        assertThat(jdbc.queryForObject("SELECT count(*) FROM app.stock_balances WHERE variant_id=? AND branch_code='MWANZA'",Long.class,whole)).isZero();
     }
     @Test void confirmationReservesOncePreservesOriginalTotalsAndNotifies(){
         var order=orders.submit(phone,UUID.randomUUID(),request(Fulfilment.DELIVERY,"2"));var actor=sales();var agreement=agreed("5.50");

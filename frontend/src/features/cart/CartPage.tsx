@@ -32,7 +32,7 @@ export function CartPage() {
   const [invalid, setInvalid] = useState<string[]>([])
   const hasInvalid = cart.items.some(item => invalid.includes(item.variantId))
   if (!cart.items.length) return <EmptyCart />
-  return <div className="container commerce-page"><nav className="breadcrumbs" aria-label="Breadcrumb"><a href="#/shop">Shop</a><span>/</span><span>Your cart</span></nav><p className="eyebrow">Your next build</p><h1>Your cart</h1><p className="commerce-intro">Review your materials. Availability shown here is across branches; choose Tarime or Mwanza at checkout to check its stock.</p>
+  return <div className="container commerce-page"><nav className="breadcrumbs" aria-label="Breadcrumb"><a href="#/shop">Shop</a><span>/</span><span>Your cart</span></nav><p className="eyebrow">Your next build</p><h1>Your cart</h1><p className="commerce-intro">Review your materials. Check availability at our Tarime store before submitting your order.</p>
     {!cart.storageAvailable && <p className="form-error" role="alert">Browser storage is unavailable. Keep this tab open to retain your cart.</p>}
     <div className="commerce-grid"><section className="commerce-panel cart-items" aria-label="Cart items">
       {cart.items.map(item => <CartRow key={item.variantId + item.quantity} item={item} line={quote.data?.items.find(line => line.variantId === item.variantId)} onValidity={valid => setInvalid(ids => valid ? ids.filter(id => id !== item.variantId) : ids.includes(item.variantId) ? ids : [...ids, item.variantId])} />)}

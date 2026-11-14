@@ -54,7 +54,7 @@ public class JdbcCatalogueReader implements CatalogueReader {
         var rows=jdbc.query("SELECT * FROM app.public_catalogue_products WHERE id=:id",params,PRODUCT);
         if(rows.isEmpty())return Optional.empty();
         var variants=jdbc.query("""
-                SELECT v.*,u.label AS unit,u.fractional,COALESCE((SELECT sum(s.on_hand-s.reserved) FROM app.stock_balances s WHERE s.variant_id=v.id),0) AS available
+                SELECT v.*,u.label AS unit,u.fractional,COALESCE((SELECT sum(s.on_hand-s.reserved) FROM app.stock_balances s WHERE s.branch_code='TARIME' AND s.variant_id=v.id),0) AS available
                 FROM app.product_variants v JOIN app.units u ON u.code=v.unit_code
                 WHERE v.product_id=:id AND v.published ORDER BY v.sort_order,v.id
                 """,params,(r,n)->new Variant(r.getObject("id",UUID.class),r.getString("sku"),r.getString("label"),r.getString("unit"),

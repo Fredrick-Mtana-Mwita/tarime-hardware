@@ -17,7 +17,7 @@ export function ConfirmOrder({ order, onConfirmed }: { order: Order; onConfirmed
     catch (problem) { setError(staffError(problem)) } finally { setBusy(false) }
   }
   if (order.summary.status !== 'PENDING') return <p className="staff-review-note">Status: {order.summary.status.toLowerCase()}. Agreed total: {order.summary.total === null ? 'Pending' : money(order.summary.total, order.summary.currency)}.</p>
-  if (!order.summary.branch) return <p className="staff-review-note">This older request has no selected branch. Ask the customer to submit a new request choosing Tarime or Mwanza before confirmation.</p>
+  if (!order.summary.branch) return <p className="staff-review-note">This older request has no selected branch. Ask the customer to submit a new request choosing Tarime before confirmation.</p>
   return <form className="staff-confirm" onSubmit={event => void submit(event)} aria-label="Confirm order">
     <h2>Confirm with customer</h2><p className="commerce-muted">Reserve materials at {branchName(order.summary.branch)}. Physical stock is deducted later on dispatch or collection.</p>
     <label htmlFor="confirm-fee">Agreed delivery fee ({order.summary.currency})</label><input id="confirm-fee" type="number" min="0" step="0.01" required value={fee} readOnly={order.summary.fulfilment === 'PICKUP'} onChange={event => setFee(event.target.value)} />

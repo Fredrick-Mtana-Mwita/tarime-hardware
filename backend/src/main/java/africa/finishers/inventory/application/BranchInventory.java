@@ -24,6 +24,7 @@ public class BranchInventory {
     public interface Store {
         Page list(String branch,String query,int page,int size);
         History history(String branch,int page,int size);
+        boolean branchOpen(String branch);
         Receipt receive(UUID actor,Receive request);
     }
     private final StaffAccounts staff;
@@ -47,7 +48,10 @@ public class BranchInventory {
             throw new AuthProblem(400,"Enter a positive quantity with at most three decimal places.");
         String source=text(request.sourceReference(),2,160,"Enter a source or delivery reference of 2–160 characters.");
         String reason=text(request.reason(),5,500,"Record a receipt reason of 5–500 characters.");
-        return store.receive(actor.id(),new Receive(request.id(),request.variantId(),branch(request.branch()),request.quantity(),source,reason));
+        String branch=branch(request.branch());
+        // Closed branches keep their history for reading but accept no new stock.
+        if(!store.branchOpen(branch))throw new AuthProblem(409,"This branch is closed. Receive new stock at Tarime.");
+        return store.receive(actor.id(),new Receive(request.id(),request.variantId(),branch,request.quantity(),source,reason));
     }
     private String text(String value,int min,int max,String message){
         if(value==null||value.strip().length()<min||value.length()>max||value.chars().anyMatch(Character::isISOControl))throw new AuthProblem(400,message);

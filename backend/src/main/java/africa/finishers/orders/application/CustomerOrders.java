@@ -58,6 +58,7 @@ public class CustomerOrders {
     public Order submit(String principal,UUID key,Submission raw){
         if(key==null)throw new OrderProblem(400,"A retry key is required.");
         Submission request=normalize(raw);
+        if(!repository.branchOpen(request.branch().name()))throw new OrderProblem(409,"This branch is closed. Choose Tarime for your order.");
         UUID customerId=accounts.profile(principal).id();
         // Serialize a customer's submissions, including retries; no stock reservations are made here.
         repository.lockCustomer(customerId);
