@@ -42,6 +42,9 @@ public class SecurityConfiguration {
         http.authorizeHttpRequests(auth -> auth
                 .dispatcherTypeMatchers(jakarta.servlet.DispatcherType.ERROR).permitAll()
                 .requestMatchers(HttpMethod.GET,"/api/categories","/api/products","/api/products/*").permitAll()
+                .requestMatchers(HttpMethod.GET,"/api/models/manifest","/api/models/*/file","/api/product-images/*").permitAll()
+                .requestMatchers("/api/staff/catalogue/**").hasAnyRole("OWNER","INVENTORY")
+                .requestMatchers("/api/staff/models","/api/staff/models/*","/api/staff/models/*/*").hasAnyRole("OWNER","INVENTORY")
                 .requestMatchers(HttpMethod.GET, "/api/system/info", "/api/security/csrf",
                         "/actuator/health", "/actuator/health/liveness", "/actuator/health/readiness").permitAll()
                 .requestMatchers(HttpMethod.POST,"/api/auth/register","/api/auth/login").permitAll()
@@ -50,6 +53,7 @@ public class SecurityConfiguration {
                 .requestMatchers(HttpMethod.POST,"/api/staff/auth/password","/api/staff/auth/logout").hasAnyRole("STAFF","STAFF_PASSWORD_CHANGE")
                 .requestMatchers(HttpMethod.GET,"/api/staff/inventory","/api/staff/inventory/receipts").hasAnyRole("OWNER","INVENTORY")
                 .requestMatchers(HttpMethod.POST,"/api/staff/inventory/receipts").hasAnyRole("OWNER","INVENTORY")
+                .requestMatchers("/api/staff/fulfilment","/api/staff/fulfilment/*").hasAnyRole("OWNER","SALES","DELIVERY")
                 .requestMatchers(HttpMethod.GET,"/api/staff/accounts").hasRole("OWNER")
                 .requestMatchers(HttpMethod.POST,"/api/staff/accounts").hasRole("OWNER")
                 .requestMatchers(HttpMethod.PUT,"/api/staff/accounts/*").hasRole("OWNER")

@@ -93,3 +93,6 @@ See [client decisions](docs/client-decisions.md) and requirements v0.4 for Tarim
 
 Customers choose Tarime or Mwanza at checkout; each branch holds independent stock. Existing balances migrate to Tarime. Owner/Sales can record customer agreement and confirm with atomic branch reservations. See [branch orders](docs/branch-orders.md) and [requirements v0.5](../output/pdf/Tarime_Hardware_System_Requirements_v0.5.pdf). Restart Full Stack - local to apply V7.
 
+## 3D experiences
+
+The five 3D feature families (product viewer, configurator, room visualizer, showroom and visual effects) are implemented in the frontend with illustrative models drawn in code. Run `npm ci` in `frontend` once after pulling, because Three.js and React Three Fiber were added. The staff asset-approval pipeline and verified product models are not built. See [3D experiences](docs/3d-experiences.md).

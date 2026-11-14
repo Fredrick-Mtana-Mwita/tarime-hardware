@@ -1,6 +1,7 @@
 import catalogue from './catalogue.json'
 import { ApiError } from '../shared/api/http'
 import type { Detail } from '../features/catalogue/types'
+import { previewManifestVersion, previewModels } from '../experiences/manifest'
 const details = catalogue.details as Detail[]
 export function previewRead(path: string): unknown {
   const url = new URL(path, 'https://preview.invalid'), p = url.searchParams
@@ -21,7 +22,45 @@ export function previewRead(path: string): unknown {
     if (!detail) throw new ApiError(404)
     return detail
   }
+  if (url.pathname === '/api/models/manifest' || url.pathname === '/api/staff/models') {
+    // The preview has no server: every sample product shows its built-in illustrative shape.
+    const entries = details.flatMap((detail, index) => {
+      const sample = previewModels[detail.product.sku]
+      if (!sample) return []
+      const variantScales = Object.fromEntries(detail.variants.flatMap(variant => sample.variantScale?.[variant.sku] ? [[variant.id, sample.variantScale[variant.sku]]] : []))
+      return [{ assetId: `00000000-0000-4000-8000-0000000007${String(index).padStart(2, '0')}`, version: 1, productId: detail.product.id, sku: detail.product.sku, productName: detail.product.name,
+        sourceKind: 'BUILT_IN', modelKind: sample.kind, modelUrl: null, verified: false, zone: sample.zone, roomSurface: sample.room?.surface ?? null,
+        roomFinish: sample.room?.finish ?? null, tileMm: sample.room?.tileMetres ? sample.room.tileMetres * 1000 : null, variantScales }]
+    })
+    if (url.pathname === '/api/models/manifest') return { version: previewManifestVersion, entries }
+    const items = entries.map(entry => ({ id: entry.assetId, productId: entry.productId, productName: entry.productName, productSku: entry.sku, productArchived: false, version: 1, status: 'PUBLISHED',
+      sourceKind: 'BUILT_IN', modelKind: entry.modelKind, fileSha256: null, fileBytes: null, fileName: null, validation: null, sourceDescription: 'Built-in illustrative shape drawn by the storefront code',
+      licenseTerms: 'Project-owned code', attribution: '', rightsConfirmed: true, verifiedExact: false, widthMm: null, heightMm: null, depthMm: null, showroomZone: entry.zone, roomSurface: entry.roomSurface,
+      roomFinish: entry.roomFinish, tileMm: entry.tileMm, variantScales: entry.variantScales, revision: 0, createdByName: null, createdAt: '2026-11-12T00:00:00Z', updatedAt: '2026-11-12T00:00:00Z',
+      submittedByName: null, submittedAt: null, reviewedByName: null, reviewedAt: '2026-11-12T00:00:00Z', reviewNote: 'Sample', publishedAt: '2026-11-12T00:00:00Z', retiredAt: null }))
+      .filter(item => (item.productName + ' ' + item.productSku).toLowerCase().includes(q) && (!p.get('status') || p.get('status') === 'PUBLISHED'))
+    return { items: items.slice(page * size, (page + 1) * size), total: items.length, inReview: 0, page, size }
+  }
+  if (url.pathname === '/api/staff/models/products') return []
+  if (url.pathname === '/api/staff/catalogue/options') return { categories: catalogue.categories.map(category => ({ id: category.id, name: category.name, published: true })), units: [] }
+  if (url.pathname === '/api/staff/catalogue/products') {
+    const items = details.map(d => ({ id: d.product.id, sku: d.product.sku, name: d.product.name, brand: d.product.brand, categoryName: d.product.categoryName, status: 'PUBLISHED', sample: true,
+      variants: d.variants.length, image: d.product.imagePath, lowestPrice: d.product.price, pendingPrices: 0, revision: 0, updatedAt: '2026-11-12T00:00:00Z' }))
+      .filter(item => (item.name + ' ' + item.brand + ' ' + item.sku).toLowerCase().includes(q) && ['', 'published', 'sample'].includes(p.get('filter') || ''))
+    return { items: items.slice(page * size, (page + 1) * size), total: items.length, pendingPrices: 0, liveSamples: 0, page, size }
+  }
+  if (url.pathname.startsWith('/api/staff/catalogue/products/')) {
+    const d = details.find(item => item.product.id === url.pathname.split('/').pop())
+    if (!d) throw new ApiError(404)
+    return { id: d.product.id, sku: d.product.sku, slug: d.product.slug, name: d.product.name, brand: d.product.brand, categoryId: catalogue.categories.find(c => c.slug === d.product.categorySlug)?.id ?? '',
+      categoryName: d.product.categoryName, description: d.product.description, published: true, archived: false, featured: d.product.featured, sample: true, revision: 0, updatedAt: '2026-11-12T00:00:00Z',
+      variants: d.variants.map((v, index) => ({ id: v.id, sku: v.sku, label: v.label, unitCode: v.unit, unitLabel: v.unit, fractional: v.fractional, pricingMode: v.pricingMode, price: v.price, currency: v.currency,
+        published: true, sortOrder: index, unitLocked: true, pending: null })),
+      images: d.images.map((image, index) => ({ id: `preview-${index}`, path: image.path, alt: image.alt, sortOrder: index, width: null, height: null, uploaded: false })), specifications: d.specifications }
+  }
+  if (url.pathname === '/api/staff/catalogue/price-changes') return { items: [], total: 0, page, size }
   if (url.pathname === '/api/staff/me') return { id:'client-preview',username:'preview',name:'Client preview',role:'OWNER',passwordChangeRequired:false }
+  if (url.pathname === '/api/staff/fulfilment') return {drivers:[],orders:[{id:'sample-pickup',reference:'Sample pickup',status:'READY_FOR_PICKUP',fulfilment:'PICKUP',branch_code:'TARIME',contact_name:'Sample customer',contact_phone:'',address:'',instructions:''},{id:'sample-delivery',reference:'Sample delivery',status:'OUT_FOR_DELIVERY',fulfilment:'DELIVERY',branch_code:'TARIME',contact_name:'Sample customer',contact_phone:'',address:'',instructions:''}]}
   if (url.pathname === '/api/staff/inventory') {
     const items = details.flatMap(d => d.variants.map(v => {
       const stock=p.get('branch')==='MWANZA'?0:v.available
