@@ -16,7 +16,7 @@ public class JdbcStaffOrderUpdates implements StaffOrderUpdates.Repository {
                 JOIN app.customer_orders o ON o.id=n.order_id
                 LEFT JOIN app.staff_order_notice_reads r ON r.notice_id=n.id AND r.staff_id=?
                 ORDER BY n.created_at DESC,n.id DESC LIMIT 50
-                """,(r,n)->new StaffOrderUpdates.Notice(r.getObject("id",UUID.class),r.getObject("order_id",UUID.class),r.getString("reference"),r.getTimestamp("created_at").toInstant(),r.getTimestamp("read_at")==null?null:r.getTimestamp("read_at").toInstant()),staffId);
+                """,(r,n)->new StaffOrderUpdates.Notice(r.getObject("id",UUID.class),r.getObject("order_id",UUID.class),r.getString("reference"),r.getString("kind"),r.getTimestamp("created_at").toInstant(),r.getTimestamp("read_at")==null?null:r.getTimestamp("read_at").toInstant()),staffId);
     }
     public boolean read(UUID staffId,UUID id){
         if(!Boolean.TRUE.equals(jdbc.queryForObject("SELECT EXISTS(SELECT 1 FROM app.staff_order_notices WHERE id=?)",Boolean.class,id)))return false;

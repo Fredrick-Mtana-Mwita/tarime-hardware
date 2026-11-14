@@ -51,13 +51,13 @@ public class JdbcOrderRepository implements OrderRepository {
                 """,UUID.randomUUID(),customerId,id.toString());
     }
     public Optional<Order> find(UUID customerId,UUID id){
-        RowMapper<Order> mapper=(r,n)->new Order(summary(r),r.getString("contact_name"),r.getString("contact_phone"),r.getString("address"),r.getString("instructions"),List.of());
+        RowMapper<Order> mapper=(r,n)->new Order(summary(r),r.getString("contact_name"),r.getString("contact_phone"),r.getString("address"),r.getString("instructions"),List.of(),null);
         var rows=jdbc.query("SELECT * FROM app.customer_orders WHERE id=? AND customer_id=?",mapper,id,customerId);
         if(rows.isEmpty())return Optional.empty();
         var lines=jdbc.query("SELECT * FROM app.customer_order_items WHERE order_id=? ORDER BY product_name,variant_id",
                 (r,n)->new OrderLine(r.getObject("variant_id",UUID.class),r.getObject("product_id",UUID.class),r.getString("product_name"),
                         r.getString("variant_label"),r.getString("sku"),r.getString("unit"),r.getBigDecimal("quantity"),r.getBigDecimal("unit_price"),r.getBigDecimal("line_total")),id);
-        var row=rows.getFirst();return Optional.of(new Order(row.summary(),row.name(),row.phone(),row.address(),row.instructions(),lines));
+        var row=rows.getFirst();return Optional.of(new Order(row.summary(),row.name(),row.phone(),row.address(),row.instructions(),lines,OrderDecisionRows.find(jdbc,id)));
     }
     public OrderPage list(UUID customerId,int page,int size){
         var rows=jdbc.query("SELECT * FROM app.customer_orders WHERE customer_id=? ORDER BY created_at DESC,id DESC LIMIT ? OFFSET ?",

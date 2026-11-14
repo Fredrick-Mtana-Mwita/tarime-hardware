@@ -9,7 +9,7 @@ export async function staffSession(signal?: AbortSignal): Promise<Staff | null> 
   catch (error) { if (error instanceof ApiError && [401, 403].includes(error.status)) return null; throw error }
 }
 export async function staffWrite<T>(path: string, body: unknown, method: 'POST' | 'PUT' = 'POST'): Promise<T> {
-  if (!/^\/api\/staff\/(auth\/(login|logout|password)|inventory\/receipts|fulfilment\/[0-9a-f-]+|accounts(\/[0-9a-f-]+)?|models(\/[0-9a-f-]+(\/(submit|return|publish|retire))?)?|catalogue\/(products(\/[0-9a-f-]{36}(\/(publish|unpublish|archive|restore|photos|variants(\/[0-9a-f-]{36}(\/price)?)?))?)?|price-changes\/[0-9a-f-]{36}\/(approve|reject)|samples\/archive)|orders\/[0-9a-f-]+\/confirm|notifications\/[0-9a-f-]+\/read)$/.test(path)) throw new Error('Unsupported staff operation')
+  if (!/^\/api\/staff\/(auth\/(login|logout|password)|inventory\/receipts|fulfilment\/[0-9a-f-]+|accounts(\/[0-9a-f-]+)?|models(\/[0-9a-f-]+(\/(submit|return|publish|retire))?)?|catalogue\/(products(\/[0-9a-f-]{36}(\/(publish|unpublish|archive|restore|photos|variants(\/[0-9a-f-]{36}(\/price)?)?))?)?|price-changes\/[0-9a-f-]{36}\/(approve|reject)|samples\/archive)|orders\/[0-9a-f-]+\/(confirm|reject|cancel)|notifications\/[0-9a-f-]+\/read)$/.test(path)) throw new Error('Unsupported staff operation')
   if (isClientPreview) throw new StaffError(405, previewMessage)
   const csrf = await getJson('/api/security/csrf') as { headerName: string; token: string }
   if (csrf.headerName !== 'X-CSRF-TOKEN' || typeof csrf.token !== 'string') throw new Error('Unable to establish a secure session')

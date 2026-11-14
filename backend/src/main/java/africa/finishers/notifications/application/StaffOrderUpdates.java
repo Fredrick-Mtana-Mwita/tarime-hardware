@@ -12,7 +12,7 @@ import java.util.UUID;
 
 @Service
 public class StaffOrderUpdates {
-    public record Notice(UUID id,UUID orderId,String reference,Instant createdAt,Instant readAt) {}
+    public record Notice(UUID id,UUID orderId,String reference,String kind,Instant createdAt,Instant readAt) {}
     public interface Repository { List<Notice> list(UUID staffId);boolean read(UUID staffId,UUID noticeId); }
     private final StaffAccounts staff;
     private final Repository repository;

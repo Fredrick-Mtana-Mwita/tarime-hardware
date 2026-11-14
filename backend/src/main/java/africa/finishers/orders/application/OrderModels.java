@@ -19,6 +19,8 @@ public final class OrderModels {
                             BigDecimal quantity,BigDecimal unitPrice,BigDecimal lineTotal) {}
     public record Summary(UUID id,String reference,String status,Fulfilment fulfilment,String currency,
                           BigDecimal subtotal,BigDecimal deliveryFee,BigDecimal total,Instant createdAt,Branch branch) {}
-    public record Order(Summary summary,String name,String phone,String address,String instructions,List<OrderLine> items) {}
+    /** A staff rejection or cancellation. The reason is written for the customer. */
+    public record Decision(String decision,String reason,Instant decidedAt) {}
+    public record Order(Summary summary,String name,String phone,String address,String instructions,List<OrderLine> items,Decision decision) {}
     public record OrderPage(List<Summary> items,long total,int page,int size) {}
 }

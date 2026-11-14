@@ -30,7 +30,8 @@ function JobCard({job, drivers, role, refresh}: {job: Job; drivers: Driver[]; ro
       {target === 'READY_FOR_DELIVERY' && <label>Assigned driver<select required name="driver" defaultValue=""><option value="">Select a driver</option>{drivers.map(d=><option key={d.id} value={d.id}>{d.name}</option>)}</select></label>}
       {handover && <><label>Recipient name<input name="recipient" disabled={isClientPreview} required maxLength={100}/></label><label><input type="checkbox" name="acknowledged" disabled={isClientPreview} required/> I handed the goods to this recipient.</label></>}
       {error && <p role="alert">{error}</p>}<button disabled={busy || isClientPreview} className="button primary">{labels[target]}</button>
-    </form>}</article>
+    </form>}
+    {role !== 'DELIVERY' && job.status !== 'OUT_FOR_DELIVERY' && <a className="text-link" href={`#/staff/orders/${job.id}`}>Open order to cancel it</a>}</article>
 }
 export function Fulfilment({role}: {role:string}) {
   const jobs = useWorkspaceData<{orders:Job[];drivers:Driver[]}>('/api/staff/fulfilment')

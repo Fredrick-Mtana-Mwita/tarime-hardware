@@ -33,10 +33,10 @@ public class JdbcStaffOrderReview implements StaffOrderReview.Reader {
         return new StaffOrderReview.Page(rows,total==null?0:total,pending==null?0:pending,page,size);
     }
     public Optional<Order> find(UUID id){
-        var rows=jdbc.query("SELECT * FROM app.customer_orders WHERE id=?",(r,n)->new Order(summary(r),r.getString("contact_name"),r.getString("contact_phone"),r.getString("address"),r.getString("instructions"),List.of()),id);
+        var rows=jdbc.query("SELECT * FROM app.customer_orders WHERE id=?",(r,n)->new Order(summary(r),r.getString("contact_name"),r.getString("contact_phone"),r.getString("address"),r.getString("instructions"),List.of(),null),id);
         if(rows.isEmpty())return Optional.empty();
         var items=jdbc.query("SELECT * FROM app.customer_order_items WHERE order_id=? ORDER BY product_name,variant_id",
                 (r,n)->new OrderLine(r.getObject("variant_id",UUID.class),r.getObject("product_id",UUID.class),r.getString("product_name"),r.getString("variant_label"),r.getString("sku"),r.getString("unit"),r.getBigDecimal("quantity"),r.getBigDecimal("unit_price"),r.getBigDecimal("line_total")),id);
-        var row=rows.getFirst();return Optional.of(new Order(row.summary(),row.name(),row.phone(),row.address(),row.instructions(),items));
+        var row=rows.getFirst();return Optional.of(new Order(row.summary(),row.name(),row.phone(),row.address(),row.instructions(),items,OrderDecisionRows.find(jdbc,id)));
     }
 }

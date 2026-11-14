@@ -58,7 +58,7 @@ public class SecurityConfiguration {
                 .requestMatchers(HttpMethod.POST,"/api/staff/accounts").hasRole("OWNER")
                 .requestMatchers(HttpMethod.PUT,"/api/staff/accounts/*").hasRole("OWNER")
                 .requestMatchers(HttpMethod.GET,"/api/staff/orders","/api/staff/orders/*","/api/staff/notifications").hasAnyRole("OWNER","SALES")
-                .requestMatchers(HttpMethod.POST,"/api/staff/orders/*/confirm").hasAnyRole("OWNER","SALES")
+                .requestMatchers(HttpMethod.POST,"/api/staff/orders/*/confirm","/api/staff/orders/*/reject","/api/staff/orders/*/cancel").hasAnyRole("OWNER","SALES")
                   .requestMatchers(HttpMethod.POST,"/api/staff/notifications/*/read").hasAnyRole("OWNER","SALES")
                 .requestMatchers(HttpMethod.POST,"/api/cart/quote").permitAll()
                 .requestMatchers(HttpMethod.GET,"/api/orders","/api/orders/*","/api/notifications").hasRole("CUSTOMER")

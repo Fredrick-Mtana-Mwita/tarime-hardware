@@ -43,7 +43,8 @@ export interface OrderSummary {
   id: string; reference: string; status: string; fulfilment: 'DELIVERY' | 'PICKUP'; currency: string
   subtotal: number; deliveryFee: number | null; total: number | null; createdAt: string
 }
+export interface OrderDecision { decision: 'REJECTED' | 'CANCELLED'; reason: string; decidedAt: string }
 export interface Order { summary: OrderSummary; name: string; phone: string; address: string; instructions: string
-  items: Omit<QuoteLine, 'fractional' | 'currency' | 'available'>[] }
+  items: Omit<QuoteLine, 'fractional' | 'currency' | 'available'>[]; decision?: OrderDecision | null }
 export interface Notice { id: string; orderId: string; title: string; message: string; createdAt: string; readAt: string | null }
 export interface OrderPage { items: OrderSummary[]; total: number; page: number; size: number }
