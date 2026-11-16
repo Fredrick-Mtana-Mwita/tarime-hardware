@@ -17,7 +17,7 @@ interface Pending { id: string; requestedMode: 'FIXED' | 'QUOTE'; requestedPrice
 interface Variant { id: string; sku: string; label: string; unitCode: string; unitLabel: string; fractional: boolean; pricingMode: 'FIXED' | 'QUOTE'; price: number | null; currency: string; published: boolean; sortOrder: number; unitLocked: boolean; pending: Pending | null }
 interface Photo { id: string; path: string; alt: string; sortOrder: number; width: number | null; height: number | null; uploaded: boolean }
 interface Spec { label: string; value: string }
-interface Product { id: string; sku: string; slug: string; name: string; brand: string; categoryId: string; categoryName: string; description: string; published: boolean; archived: boolean; featured: boolean; sample: boolean; revision: number; updatedAt: string; variants: Variant[]; images: Photo[]; specifications: Spec[] }
+interface Product { id: string; sku: string; slug: string; name: string; nameSw?: string | null; brand: string; categoryId: string; categoryName: string; description: string; published: boolean; archived: boolean; featured: boolean; sample: boolean; revision: number; updatedAt: string; variants: Variant[]; images: Photo[]; specifications: Spec[] }
 interface PriceChange { id: string; productId: string; productName: string; variantLabel: string; sku: string; previousMode: string; previousPrice: number | null; requestedMode: string; requestedPrice: number | null; reason: string; requestedByName: string; requestedAt: string }
 
 const filters: { id: Filter; name: string }[] = [{ id: '', name: 'All' }, { id: 'draft', name: 'Not published' }, { id: 'published', name: 'Published' }, { id: 'price-waiting', name: 'Price waiting' }, { id: 'sample', name: 'Sample products' }, { id: 'archived', name: 'Archived' }]
@@ -87,6 +87,7 @@ function DetailsFields({ product, options }: { product?: Product; options: Optio
       <label>Product name<input name="name" required minLength={2} maxLength={200} defaultValue={product?.name} placeholder="As written on the shelf label" /></label>
       <label>Product SKU or shop code<input name="sku" required maxLength={80} defaultValue={product?.sku} placeholder="For example: TWG-CEM-425" /></label>
       <label>Brand<input name="brand" maxLength={100} defaultValue={product?.brand} /></label>
+      <label>Kiswahili name <span className="commerce-muted">(optional, e.g. Saruji, Bati)</span><input name="nameSw" lang="sw" maxLength={160} defaultValue={product?.nameSw ?? ''} /></label>
       <label>Category<select name="categoryId" required defaultValue={product?.categoryId}>{options.categories.map(category => <option key={category.id} value={category.id}>{category.name}{category.published ? '' : ' (hidden)'}</option>)}</select></label>
     </div>
     <label>Description for customers<textarea name="description" rows={4} maxLength={4000} defaultValue={product?.description} placeholder="What it is, what it is used for, and anything to check before buying (at least 10 characters to publish)" /></label>
@@ -101,7 +102,7 @@ function NewProduct({ options, owner, onCreated, onClose }: { options: Options; 
     event.preventDefault(); if (busy) return
     const form = new FormData(event.currentTarget); setBusy(true); setError('')
     try {
-      onCreated(await staffWrite<Product>('/api/staff/catalogue/products', { id: request.product, sku: field(form, 'sku'), name: field(form, 'name'), brand: field(form, 'brand'), categoryId: field(form, 'categoryId'),
+      onCreated(await staffWrite<Product>('/api/staff/catalogue/products', { id: request.product, sku: field(form, 'sku'), name: field(form, 'name'), brand: field(form, 'brand'), nameSw: field(form, 'nameSw'), categoryId: field(form, 'categoryId'),
         description: field(form, 'description'), featured: form.get('featured') === 'on', specifications: readSpecs(form),
         variants: [{ id: request.variant, sku: field(form, 'variantSku'), label: field(form, 'variantLabel'), unitCode: field(form, 'unitCode'), pricingMode: mode, price: mode === 'FIXED' ? Number(form.get('price')) : null, published: true, sortOrder: 0 }] }))
     } catch (problem) { setError(staffError(problem)) } finally { setBusy(false) }
@@ -165,7 +166,7 @@ function Editor({ id, options, owner, onChanged, onClose }: { id: string; option
   }
   function save(event: FormEvent<HTMLFormElement>) {
     event.preventDefault(); const form = new FormData(event.currentTarget)
-    void run('details', 'Details saved.', () => staffWrite<Product>('/api/staff/catalogue/products/' + item.id, { sku: field(form, 'sku'), name: field(form, 'name'), brand: field(form, 'brand'), categoryId: field(form, 'categoryId'),
+    void run('details', 'Details saved.', () => staffWrite<Product>('/api/staff/catalogue/products/' + item.id, { sku: field(form, 'sku'), name: field(form, 'name'), brand: field(form, 'brand'), nameSw: field(form, 'nameSw'), categoryId: field(form, 'categoryId'),
       description: field(form, 'description'), featured: form.get('featured') === 'on', specifications: readSpecs(form), revision: item.revision }, 'PUT'))
   }
   function status(action: 'publish' | 'unpublish' | 'archive' | 'restore', done: string) { void run(action, done, () => staffWrite<Product>(`/api/staff/catalogue/products/${item.id}/${action}`, { revision: item.revision })) }
@@ -187,7 +188,7 @@ function Editor({ id, options, owner, onChanged, onClose }: { id: string; option
       {item.published && <button type="button" className="button secondary" disabled={Boolean(busy)} onClick={() => status('unpublish', 'Hidden from customers.')}>Hide from customers</button>}
       {!item.archived && <button type="button" className="button secondary" disabled={Boolean(busy)} onClick={() => { if (window.confirm(`Archive ${item.name}? Customers will no longer see it. Past orders keep their details.`)) status('archive', 'Archived.') }}>Archive</button>}
       {item.archived && <button type="button" className="button secondary" disabled={Boolean(busy)} onClick={() => status('restore', 'Restored. It is not published yet.')}>Restore</button>}
-      <a className="text-link" href="#/staff/inventory">Receive stock →</a><a className="text-link" href="#/staff/models">3D model →</a>
+      <a className="text-link" href="#/staff/inventory">Receive stock →</a>
       {item.published && <a className="text-link" href={`#/product/${item.id}`}>View in the shop →</a>}
     </div>
 

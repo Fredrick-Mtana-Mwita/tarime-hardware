@@ -64,6 +64,11 @@ class FoundationIT {
         var cement=json("/api/products?q=TWIGA&category=cement&minPrice=18000&maxPrice=19000");
         assertThat(cement.get("total").asInt()).isEqualTo(1);
         assertThat(cement.get("items").get(0).get("price").decimalValue()).isEqualByComparingTo("18500");
+        // Customers search with the Kiswahili name too (V16).
+        var saruji=json("/api/products?q=SARUJI");
+        assertThat(saruji.get("total").asInt()).isEqualTo(1);
+        assertThat(saruji.get("items").get(0).get("nameSw").asText()).isEqualTo("Saruji");
+        assertThat(saruji.get("items").get(0).get("categoryNameSw").asText()).isEqualTo("Vifaa vya Ujenzi");
         var first=json("/api/products?sort=price-asc&size=2");
         var next=json("/api/products?sort=price-asc&size=2&page=1");
         assertThat(first.get("items").size()).isEqualTo(2);

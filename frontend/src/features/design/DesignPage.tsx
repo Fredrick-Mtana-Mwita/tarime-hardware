@@ -44,18 +44,18 @@ function Clip({ clip, still }: { clip: (typeof heroClips)[keyof typeof heroClips
 function InteriorRing({ reduced }: { reduced: boolean }) {
   const count = interiorIdeas.length
   const [turn, setTurn] = useState(0)
-  const [choice, setChoice] = useState<boolean | null>(null)
   const [held, setHeld] = useState(false)
-  const playing = choice ?? !reduced
+  // Turns on its own, pauses while the pointer is over it, and stays still for visitors who turn off animations.
+  const playing = !reduced
   const active = ((turn % count) + count) % count
   useEffect(() => {
     if (!playing || held) return
-    const timer = window.setInterval(() => setTurn(current => current + 1), 3800)
+    const timer = window.setInterval(() => setTurn(current => current + 1), 3000)
     return () => window.clearInterval(timer)
   }, [playing, held])
   const ringStyle = { '--dz-angle': `${(-turn * 360) / count}deg`, '--dz-step': `${360 / count}deg` } as CSSProperties
   return <div className="dz-ring-wrap" role="region" aria-label="Interior ideas in a rotating 3D gallery"
-    onMouseEnter={() => setHeld(true)} onMouseLeave={() => setHeld(false)} onFocusCapture={() => setHeld(true)} onBlurCapture={() => setHeld(false)}>
+    onMouseEnter={() => setHeld(true)} onMouseLeave={() => setHeld(false)}>
     <div className="dz-ring-scene">
       <ul className="dz-ring" style={ringStyle}>
         {interiorIdeas.map((idea, position) => <li key={idea.image} className={position === active ? 'active' : ''} style={{ '--dz-i': position } as CSSProperties}>
@@ -64,12 +64,6 @@ function InteriorRing({ reduced }: { reduced: boolean }) {
       </ul>
     </div>
     <p className="dz-ring-caption" aria-live={playing ? 'off' : 'polite'}><strong>{interiorIdeas[active].title}</strong><span>{interiorIdeas[active].detail}</span></p>
-    <div className="dz-ring-controls">
-      <button type="button" aria-label="Previous interior idea" onClick={() => setTurn(turn - 1)}>←</button>
-      <span>{active + 1} / {count}</span>
-      <button type="button" aria-label="Next interior idea" onClick={() => setTurn(turn + 1)}>→</button>
-      <button type="button" onClick={() => setChoice(!playing)}>{playing ? 'Pause rotation' : 'Play rotation'}</button>
-    </div>
   </div>
 }
 
@@ -126,7 +120,7 @@ export function DesignPage() {
 
     <section className="container section"><div className="dz-cta">
       <div><p className="eyebrow">Start your project</p><h2>Bring your idea, a photo or a sketch.</h2><p>Visit Tarime Hardware in Tarime and talk it through with us. We will help you turn it into a list of materials you can order.</p></div>
-      <div className="dz-cta-actions"><a className="button primary" href="#/shop">Browse materials →</a><a className="button dz-ghost" href="#/3d/room">Try finishes in a 3D room →</a></div>
+      <div className="dz-cta-actions"><a className="button primary" href="#/shop">Browse materials →</a></div>
     </div>
     <p className="dz-note">Pictures on this page are concept visuals for inspiration. They are not photographs of completed Tarime Hardware projects.</p></section>
   </div>

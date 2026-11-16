@@ -45,10 +45,6 @@
 .dz-ring-caption { display: flex; flex-direction: column; align-items: center; gap: 4px; min-height: 52px; padding: 0 20px; text-align: center; }
 .dz-ring-caption strong { font-size: 18px; }
 .dz-ring-caption span { font-size: 13px; color: #c9ced4; }
-.dz-ring-controls { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 12px; padding: 14px 16px 0; font-size: 14px; }
-.dz-ring-controls button { min-width: 44px; min-height: 44px; padding: 8px 14px; border: 1px solid #5b636b; border-radius: 8px; background: transparent; color: #fff; }
-.dz-ring-controls button:hover { border-color: var(--amber); }
-.dz-ring-controls button:focus-visible { outline: 3px solid var(--amber); outline-offset: 3px; }
 
 /* Exterior: cards that lean towards the mouse */
 .dz-exterior-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; }

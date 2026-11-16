@@ -90,3 +90,11 @@ INSERT INTO app.stock_balances(variant_id,on_hand,low_stock_threshold) VALUES ('
 INSERT INTO app.product_variants(id,product_id,sku,label,unit_code,unit_price,currency,published,sort_order) VALUES ('00000000-0000-4000-8000-000000000250','00000000-0000-4000-8000-000000000100','FPA-SAMPLE-001-02','25 kg bag','25-kg-bag',10500,'TZS',TRUE,1) ON CONFLICT DO NOTHING;
 INSERT INTO app.stock_balances(variant_id,on_hand,low_stock_threshold) VALUES ('00000000-0000-4000-8000-000000000250',40,10) ON CONFLICT DO NOTHING;
 INSERT INTO app.product_images VALUES ('00000000-0000-4000-8000-000000000399','00000000-0000-4000-8000-000000000100','/images/cement-sack.jpg','Cement bag - illustrative alternate photo',1) ON CONFLICT DO NOTHING;
+
+-- Kiswahili names for the sample products (V16). Real products get theirs in the staff catalogue.
+UPDATE app.products p SET name_sw=v.sw FROM (VALUES
+ ('FPA-SAMPLE-001','Saruji'),('FPA-SAMPLE-002','Rangi ya mafuta nyeupe'),('FPA-SAMPLE-003','Vigae vya sakafu'),
+ ('FPA-SAMPLE-004','Balbu ya LED'),('FPA-SAMPLE-005','Waya wa umeme'),('FPA-SAMPLE-006','Taa ya kuning''inia'),
+ ('FPA-SAMPLE-007','Nyundo na koleo'),('FPA-SAMPLE-008','Roli la kupaka rangi'),('FPA-SAMPLE-009','Vigae vya ukutani'),
+ ('FPA-SAMPLE-010','Ubao wa kusambaza umeme'),('FPA-SAMPLE-011','Bati la kuezekea'),('FPA-SAMPLE-012','Bomba la maji')
+) AS v(sku,sw) WHERE p.sku=v.sku;

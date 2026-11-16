@@ -2,7 +2,4 @@
 .design-gallery-images { position: relative; height: clamp(320px, 42vw, 540px); overflow: hidden; background: #e7ded2; }
 .finish-banner .design-gallery-images img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; opacity: 0; transition: opacity 700ms ease; }
 .finish-banner .design-gallery-images img.visible { opacity: 1; }
-.finish-banner .design-gallery-controls { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 12px; padding: 12px; }
-.design-gallery-controls button { min-height: 44px; min-width: 44px; padding: 8px 12px; border: 1px solid #9a7225; background: #fff; color: #16191c; border-radius: 6px; cursor: pointer; }
-.design-gallery-controls button:focus-visible { outline: 3px solid #f2a900; outline-offset: 3px; }
 @media (prefers-reduced-motion: reduce) { .finish-banner .design-gallery-images img { transition: none; } }

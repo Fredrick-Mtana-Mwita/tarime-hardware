@@ -1,3 +1,4 @@
+import { currentLanguage, locale } from '../../shared/i18n'
 export type Method = 'CASH' | 'MOBILE_MONEY'
 export type Provider = 'MPESA' | 'MIXX' | 'AIRTEL_MONEY' | 'HALOPESA'
 export type BalanceStatus = 'UNPAID' | 'PART_PAID' | 'PAID' | 'REFUND_DUE' | 'PARTLY_REFUNDED' | 'REFUNDED'
@@ -18,4 +19,4 @@ export const statusLabels: Record<BalanceStatus, string> = { UNPAID: 'Unpaid', P
 export const howPaid = (method: Method | null, provider: Provider | null) => method === 'CASH' ? 'Cash' : provider ? providers[provider] : 'Mobile money'
 /** Orders that may still take a payment. The server applies the same rule. */
 export const payable = ['CONFIRMED', 'PREPARING', 'READY_FOR_PICKUP', 'READY_FOR_DELIVERY', 'OUT_FOR_DELIVERY', 'DELIVERED', 'COLLECTED']
-export const dateTime = (value: string) => new Intl.DateTimeFormat('en-TZ', { dateStyle: 'medium', timeStyle: 'short', timeZone: 'Africa/Dar_es_Salaam' }).format(new Date(value))
+export const dateTime = (value: string) => new Intl.DateTimeFormat(locale(currentLanguage()), { dateStyle: 'medium', timeStyle: 'short', timeZone: 'Africa/Dar_es_Salaam' }).format(new Date(value))

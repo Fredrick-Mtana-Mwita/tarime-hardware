@@ -1,3 +1,4 @@
+import { AddressText } from './AddressText'
 import { useState } from 'react'
 import type { FormEvent } from 'react'
 import { staffWrite, staffError } from './api'
@@ -25,7 +26,7 @@ function JobCard({job, drivers, role, refresh}: {job: Job; drivers: Driver[]; ro
     } catch (problem) { setError(staffError(problem)) } finally { setBusy(false) }
   }
   return <article className="commerce-panel"><h2>{job.reference}</h2><p>{job.branch_code} · {job.fulfilment} · {job.status.replaceAll('_',' ')}</p>
-    <p>{job.contact_name} · {job.contact_phone}</p><p>{job.address} {job.instructions}</p>
+    <p>{job.contact_name} · {job.contact_phone}</p>{job.address && <p><AddressText value={job.address} /></p>}{job.instructions && <p>{job.instructions}</p>}
     {target && permitted && <form className="staff-form" onSubmit={submit}>
       {target === 'READY_FOR_DELIVERY' && <label>Assigned driver<select required name="driver" defaultValue=""><option value="">Select a driver</option>{drivers.map(d=><option key={d.id} value={d.id}>{d.name}</option>)}</select></label>}
       {handover && <><label>Recipient name<input name="recipient" disabled={isClientPreview} required maxLength={100}/></label><label><input type="checkbox" name="acknowledged" disabled={isClientPreview} required/> I handed the goods to this recipient.</label></>}

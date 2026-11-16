@@ -1,7 +1,6 @@
 import catalogue from './catalogue.json'
 import { ApiError } from '../shared/api/http'
 import type { Detail } from '../features/catalogue/types'
-import { previewManifestVersion, previewModels } from '../experiences/manifest'
 const details = catalogue.details as Detail[]
 export function previewRead(path: string): unknown {
   const url = new URL(path, 'https://preview.invalid'), p = url.searchParams
@@ -10,7 +9,7 @@ export function previewRead(path: string): unknown {
   if (url.pathname === '/api/auth/me') throw new ApiError(401)
   if (url.pathname === '/api/categories') return catalogue.categories
   if (url.pathname === '/api/products') {
-    let items = details.map(d => d.product).filter(product => (product.name + ' ' + product.brand + ' ' + product.sku).toLowerCase().includes(q)
+    let items = details.map(d => d.product).filter(product => (product.name + ' ' + (product.nameSw || '') + ' ' + product.brand + ' ' + product.sku).toLowerCase().includes(q)
       && (!p.get('category') || product.categorySlug === p.get('category'))
       && (p.get('featured') !== 'true' || product.featured) && (p.get('inStock') !== 'true' || product.inStock)
       && (!p.get('minPrice') || (product.price ?? 0) >= Number(p.get('minPrice'))) && (!p.get('maxPrice') || (product.price ?? 0) <= Number(p.get('maxPrice'))))
@@ -22,26 +21,6 @@ export function previewRead(path: string): unknown {
     if (!detail) throw new ApiError(404)
     return detail
   }
-  if (url.pathname === '/api/models/manifest' || url.pathname === '/api/staff/models') {
-    // The preview has no server: every sample product shows its built-in illustrative shape.
-    const entries = details.flatMap((detail, index) => {
-      const sample = previewModels[detail.product.sku]
-      if (!sample) return []
-      const variantScales = Object.fromEntries(detail.variants.flatMap(variant => sample.variantScale?.[variant.sku] ? [[variant.id, sample.variantScale[variant.sku]]] : []))
-      return [{ assetId: `00000000-0000-4000-8000-0000000007${String(index).padStart(2, '0')}`, version: 1, productId: detail.product.id, sku: detail.product.sku, productName: detail.product.name,
-        sourceKind: 'BUILT_IN', modelKind: sample.kind, modelUrl: null, verified: false, zone: sample.zone, roomSurface: sample.room?.surface ?? null,
-        roomFinish: sample.room?.finish ?? null, tileMm: sample.room?.tileMetres ? sample.room.tileMetres * 1000 : null, variantScales }]
-    })
-    if (url.pathname === '/api/models/manifest') return { version: previewManifestVersion, entries }
-    const items = entries.map(entry => ({ id: entry.assetId, productId: entry.productId, productName: entry.productName, productSku: entry.sku, productArchived: false, version: 1, status: 'PUBLISHED',
-      sourceKind: 'BUILT_IN', modelKind: entry.modelKind, fileSha256: null, fileBytes: null, fileName: null, validation: null, sourceDescription: 'Built-in illustrative shape drawn by the storefront code',
-      licenseTerms: 'Project-owned code', attribution: '', rightsConfirmed: true, verifiedExact: false, widthMm: null, heightMm: null, depthMm: null, showroomZone: entry.zone, roomSurface: entry.roomSurface,
-      roomFinish: entry.roomFinish, tileMm: entry.tileMm, variantScales: entry.variantScales, revision: 0, createdByName: null, createdAt: '2026-11-12T00:00:00Z', updatedAt: '2026-11-12T00:00:00Z',
-      submittedByName: null, submittedAt: null, reviewedByName: null, reviewedAt: '2026-11-12T00:00:00Z', reviewNote: 'Sample', publishedAt: '2026-11-12T00:00:00Z', retiredAt: null }))
-      .filter(item => (item.productName + ' ' + item.productSku).toLowerCase().includes(q) && (!p.get('status') || p.get('status') === 'PUBLISHED'))
-    return { items: items.slice(page * size, (page + 1) * size), total: items.length, inReview: 0, page, size }
-  }
-  if (url.pathname === '/api/staff/models/products') return []
   if (url.pathname === '/api/staff/catalogue/options') return { categories: catalogue.categories.map(category => ({ id: category.id, name: category.name, published: true })), units: [] }
   if (url.pathname === '/api/staff/catalogue/products') {
     const items = details.map(d => ({ id: d.product.id, sku: d.product.sku, name: d.product.name, brand: d.product.brand, categoryName: d.product.categoryName, status: 'PUBLISHED', sample: true,
@@ -71,6 +50,9 @@ export function previewRead(path: string): unknown {
   if (url.pathname === '/api/staff/orders') return {items:[],total:0,pendingCount:0,page,size}
   if (url.pathname === '/api/staff/finance/orders') return {items:[],total:0,page,size}
   if (url.pathname === '/api/staff/finance/adjustments') return []
+  if (url.pathname === '/api/staff/reports/sales') return previewSales(p.get('from') || '', p.get('to') || '')
+  if (url.pathname === '/api/staff/reports/balances') return {currency:'TZS',owedToShop:0,owedToCustomers:0,orders:0,rows:[]}
+  if (url.pathname === '/api/staff/reports/stock') return {from:p.get('from'),to:p.get('to'),branch:'TARIME',currency:'TZS',items:0,lowStock:0,valueAtPrice:0,rows:[]}
   if (url.pathname === '/api/staff/finance/summary') return {date:p.get('date')||'',currency:'TZS',cash:0,mobileMoney:0,received:0,payments:0,reversed:0,refunded:0,net:0,completedSales:0,completedOrders:0}
   if (url.pathname === '/api/staff/inventory/receipts') return {items:[],total:0,page,size}
   if (['/api/staff/accounts','/api/staff/notifications','/api/notifications'].includes(url.pathname)) return []
@@ -86,4 +68,13 @@ export function previewQuote(body: unknown) {
     return {variantId:variant.id,productId:detail.product.id,productName:detail.product.name,variantLabel:variant.label,sku:variant.sku,unit:variant.unit,fractional:variant.fractional,quantity,unitPrice:variant.price||0,currency:'TZS',lineTotal:Math.round(quantity*(variant.price||0)*100)/100,available:request.branch==='MWANZA'?0:variant.available}
   })
   return {items,currency:'TZS',subtotal:items.reduce((sum,item)=>sum+item.lineTotal,0)}
+}
+
+/** Sample report figures for the design preview. Not real sales. */
+function previewSales(from: string, to: string) {
+  const days: { date: string; requestedValue: number; completedSales: number; received: number; refunded: number }[] = []
+  for (let d = new Date((from || to) + 'T00:00:00Z'), i = 0; d <= new Date(to + 'T00:00:00Z') && i < 366; d.setUTCDate(d.getUTCDate() + 1), i++)
+    days.push({ date: d.toISOString().slice(0, 10), requestedValue: 0, completedSales: 0, received: 0, refunded: 0 })
+  return { from, to, currency: 'TZS', orders: { submitted: 0, requestedValue: 0, confirmed: 0, rejected: 0, cancelled: 0 }, sales: { completedOrders: 0, gross: 0, refunds: 0, net: 0 },
+    money: { cash: 0, mobileMoney: 0, received: 0, receipts: 0, reversed: 0, refunded: 0, net: 0 }, days, topProducts: [] }
 }

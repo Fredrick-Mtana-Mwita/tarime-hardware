@@ -66,6 +66,17 @@ class CatalogueAdminIT {
     }
     BigDecimal effective(UUID variant){return jdbc.queryForObject("SELECT unit_price FROM app.product_variants WHERE id=?",BigDecimal.class,variant);}
 
+    @Test void anOptionalKiswahiliNameIsSavedTrimmedAndCanBeCleared(){
+        var stock=actor(StaffRole.INVENTORY);
+        var base=input(category(true),null);
+        var named=new ProductInput(base.id(),base.sku(),base.name(),base.brand(),base.categoryId(),base.description(),base.featured(),base.specifications(),base.variants(),null,"  Saruji ya Simba ");
+        var created=catalogue.create(stock,named);
+        assertThat(created.nameSw()).isEqualTo("Saruji ya Simba");
+        var cleared=catalogue.update(stock,created.id(),new ProductInput(null,created.sku(),created.name(),created.brand(),created.categoryId(),created.description(),false,List.of(),null,created.revision(),""));
+        assertThat(cleared.nameSw()).isNull();
+        assertThatThrownBy(()->catalogue.update(stock,created.id(),new ProductInput(null,created.sku(),created.name(),created.brand(),created.categoryId(),created.description(),false,List.of(),null,cleared.revision(),"x")))
+            .isInstanceOf(AuthProblem.class).hasMessageContaining("Kiswahili");
+    }
     @Test void inventoryPriceWaitsForTheOwnerAndNeverTakesEffectByItself(){
         var stock=actor(StaffRole.INVENTORY);var owner=actor(StaffRole.OWNER);
         var created=catalogue.create(stock,input(category(true),"18500"));

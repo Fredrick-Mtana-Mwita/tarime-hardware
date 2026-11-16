@@ -70,7 +70,7 @@ public class JdbcCatalogueAdmin implements CatalogueAdmin.Store {
         var specs=jdbc.query("SELECT label,value FROM app.product_specifications WHERE product_id=? ORDER BY sort_order,label",(r,n)->new Spec(r.getString(1),r.getString(2)),id);
         return jdbc.query("SELECT p.*,c.name category_name FROM app.products p JOIN app.categories c ON c.id=p.category_id WHERE p.id=?",(r,n)->new ProductView(r.getObject("id",UUID.class),
             r.getString("sku"),r.getString("slug"),r.getString("name"),r.getString("brand"),r.getObject("category_id",UUID.class),r.getString("category_name"),r.getString("description"),
-            r.getBoolean("published"),r.getBoolean("archived"),r.getBoolean("featured"),r.getBoolean("sample_data"),r.getLong("revision"),time(r,"updated_at"),variants,images,specs),id).stream().findFirst();
+            r.getBoolean("published"),r.getBoolean("archived"),r.getBoolean("featured"),r.getBoolean("sample_data"),r.getLong("revision"),time(r,"updated_at"),variants,images,specs,r.getString("name_sw")),id).stream().findFirst();
     }
 
     public Optional<Lock> lock(UUID id){
@@ -99,14 +99,14 @@ public class JdbcCatalogueAdmin implements CatalogueAdmin.Store {
         for(int i=0;i<specs.size();i++)jdbc.update("INSERT INTO app.product_specifications(product_id,label,value,sort_order) VALUES(?,?,?,?)",productId,specs.get(i).label(),specs.get(i).value(),i);
     }
     public void createProduct(UUID actor,CleanProduct p){
-        jdbc.update("INSERT INTO app.products(id,sku,slug,category_id,name,brand,description,featured,published,sample_data) VALUES(?,?,?,?,?,?,?,?,false,false)",
-            p.id(),p.sku(),slug(p.name(),p.id()),p.categoryId(),p.name(),p.brand(),p.description(),p.featured());
+        jdbc.update("INSERT INTO app.products(id,sku,slug,category_id,name,brand,description,featured,published,sample_data,name_sw) VALUES(?,?,?,?,?,?,?,?,false,false,?)",
+            p.id(),p.sku(),slug(p.name(),p.id()),p.categoryId(),p.name(),p.brand(),p.description(),p.featured(),p.nameSw());
         specifications(p.id(),p.specifications());
         audit(actor,"CATALOGUE_PRODUCT_CREATED","PRODUCT",p.id().toString());
     }
     public void updateProduct(UUID actor,CleanProduct p){
-        jdbc.update("UPDATE app.products SET sku=?,name=?,brand=?,category_id=?,description=?,featured=?,revision=revision+1,updated_at=now() WHERE id=?",
-            p.sku(),p.name(),p.brand(),p.categoryId(),p.description(),p.featured(),p.id());
+        jdbc.update("UPDATE app.products SET sku=?,name=?,brand=?,category_id=?,description=?,featured=?,name_sw=?,revision=revision+1,updated_at=now() WHERE id=?",
+            p.sku(),p.name(),p.brand(),p.categoryId(),p.description(),p.featured(),p.nameSw(),p.id());
         specifications(p.id(),p.specifications());
         audit(actor,"CATALOGUE_PRODUCT_UPDATED","PRODUCT",p.id().toString());
     }

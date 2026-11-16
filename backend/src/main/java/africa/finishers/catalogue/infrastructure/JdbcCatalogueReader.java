@@ -20,19 +20,19 @@ public class JdbcCatalogueReader implements CatalogueReader {
     private static final RowMapper<Product> PRODUCT=(r,n)->new Product(r.getObject("id",UUID.class),r.getString("sku"),
             r.getString("slug"),r.getString("name"),r.getString("brand"),r.getString("description"),
             r.getString("category_slug"),r.getString("category_name"),r.getBigDecimal("price"),r.getString("currency"),
-            r.getString("unit"),r.getString("image_path"),r.getString("image_alt"),r.getBoolean("in_stock"),r.getBoolean("featured"),r.getBoolean("sample_data"));
+            r.getString("unit"),r.getString("image_path"),r.getString("image_alt"),r.getBoolean("in_stock"),r.getBoolean("featured"),r.getBoolean("sample_data"),r.getString("name_sw"),r.getString("category_name_sw"));
 
     public List<Category> categories() {
         return jdbc.query("""
                 SELECT c.*, (SELECT count(*) FROM app.public_catalogue_products p WHERE p.category_id=c.id) AS product_count
                 FROM app.categories c WHERE c.published AND NOT c.archived ORDER BY c.sort_order,c.name,c.id
                 """,Map.of(),(r,n)->new Category(r.getObject("id",UUID.class),r.getString("slug"),r.getString("name"),
-                r.getString("description"),r.getString("image_path"),r.getLong("product_count")));
+                r.getString("description"),r.getString("image_path"),r.getLong("product_count"),r.getString("name_sw")));
     }
     public ProductPage products(Filter filter) {
         StringBuilder where=new StringBuilder(" WHERE TRUE");
         var params=new MapSqlParameterSource();
-        if(!filter.query().isBlank()) {where.append(" AND strpos(lower(name || ' ' || brand || ' ' || sku),:q)>0");params.addValue("q",filter.query().toLowerCase(java.util.Locale.ROOT));}
+        if(!filter.query().isBlank()) {where.append(" AND strpos(lower(name || ' ' || COALESCE(name_sw,'') || ' ' || brand || ' ' || sku),:q)>0");params.addValue("q",filter.query().toLowerCase(java.util.Locale.ROOT));}
         if(!filter.category().isBlank()) {where.append(" AND category_slug=:category");params.addValue("category",filter.category());}
         if(filter.minPrice()!=null){where.append(" AND price>=:minPrice");params.addValue("minPrice",filter.minPrice());}
         if(filter.maxPrice()!=null){where.append(" AND price<=:maxPrice");params.addValue("maxPrice",filter.maxPrice());}

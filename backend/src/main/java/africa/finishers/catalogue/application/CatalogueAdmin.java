@@ -41,10 +41,14 @@ public class CatalogueAdmin {
     public record Spec(String label,String value) {}
     public record ProductView(UUID id,String sku,String slug,String name,String brand,UUID categoryId,String categoryName,String description,
                               boolean published,boolean archived,boolean featured,boolean sample,long revision,Instant updatedAt,
-                              List<VariantView> variants,List<ImageView> images,List<Spec> specifications) {}
+                              List<VariantView> variants,List<ImageView> images,List<Spec> specifications,String nameSw) {}
     public record VariantInput(UUID id,String sku,String label,String unitCode,String pricingMode,BigDecimal price,Boolean published,Integer sortOrder,Long revision) {}
     public record ProductInput(UUID id,String sku,String name,String brand,UUID categoryId,String description,Boolean featured,List<Spec> specifications,
-                               List<VariantInput> variants,Long revision) {}
+                               List<VariantInput> variants,Long revision,String nameSw) {
+        public ProductInput(UUID id,String sku,String name,String brand,UUID categoryId,String description,Boolean featured,List<Spec> specifications,List<VariantInput> variants,Long revision){
+            this(id,sku,name,brand,categoryId,description,featured,specifications,variants,revision,null);
+        }
+    }
     public record PriceInput(UUID id,String pricingMode,BigDecimal price,String reason,Long revision) {}
     public record ImageOrder(UUID id,String alt) {}
     public record ImagesInput(Long revision,List<ImageOrder> images) {}
@@ -58,7 +62,7 @@ public class CatalogueAdmin {
 
     /** A variant as stored, after validation. Price fields are only applied by the Owner. */
     public record CleanVariant(UUID id,String sku,String label,String unitCode,String pricingMode,BigDecimal price,boolean published,int sortOrder) {}
-    public record CleanProduct(UUID id,String sku,String name,String brand,UUID categoryId,String description,boolean featured,List<Spec> specifications) {}
+    public record CleanProduct(UUID id,String sku,String name,String brand,UUID categoryId,String description,boolean featured,List<Spec> specifications,String nameSw) {}
     public record Lock(UUID id,long revision,boolean published,boolean archived,boolean categoryLive,String name,String description,int liveVariants,int images) {}
     public record VariantState(UUID id,UUID productId,String pricingMode,BigDecimal price,String unitCode,boolean unitLocked) {}
     public record PendingChange(UUID id,UUID variantId,UUID productId,String previousMode,BigDecimal previousPrice,String requestedMode,BigDecimal requestedPrice,String status) {}
@@ -336,6 +340,8 @@ public class CatalogueAdmin {
         if(store.productSkuTaken(sku,id))throw new AuthProblem(409,"Another product already uses the SKU "+sku+".");
         String name=text(input.name(),2,200,"Enter a product name of 2–200 characters.");
         String brand=text(input.brand(),0,100,"Keep the brand under 100 characters.");
+        String nameSw=text(input.nameSw(),0,160,"Keep the Kiswahili name under 160 characters.");
+        if(nameSw.length()==1)throw new AuthProblem(400,"Enter a Kiswahili name of at least 2 characters, or leave it empty.");
         if(input.categoryId()==null||!store.categoryUsable(input.categoryId()))throw new AuthProblem(400,"Choose a category.");
         String description=multiline(input.description(),0,4000,"Keep the description under 4000 characters.");
         var specs=input.specifications()==null?List.<Spec>of():input.specifications();
@@ -348,7 +354,7 @@ public class CatalogueAdmin {
             if(!labels.add(label.toLowerCase(java.util.Locale.ROOT)))throw new AuthProblem(400,"Specification names must be different: "+label+".");
             cleanSpecs.add(new Spec(label,value));
         }
-        return new CleanProduct(id,sku,name,brand,input.categoryId(),description,Boolean.TRUE.equals(input.featured()),List.copyOf(cleanSpecs));
+        return new CleanProduct(id,sku,name,brand,input.categoryId(),description,Boolean.TRUE.equals(input.featured()),List.copyOf(cleanSpecs),nameSw.isEmpty()?null:nameSw);
     }
 
     private CleanVariant cleanVariant(VariantInput input,int position){

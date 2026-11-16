@@ -33,7 +33,6 @@ finishers-app/
       finance/                    Sales, receipts, reversals, refunds
       fulfilment/                 Preparation, delivery, collection
       notifications/              In-app notifications and outbox
-      assets/                     Model/material provenance/publication
       imports/                    Validated import batches
       reporting/                  Authorized read projections
       audit/                      Audit-writing boundary
@@ -80,7 +79,7 @@ Implemented migrations cover audit (V1), published catalogue/stock balances (V2)
 
 Add feature directories for `catalogue`, `identity`, `cart`, `orders`, `staff`, and the other implemented business flows. Co-locate their components, API functions, state, and tests. Keep reusable presentation primitives in `shared/ui` only when actually shared. Route composition belongs in `app`, not in individual API modules.
 
-Add lazy-loaded 3D experiences (`product-viewer`, `room-visualizer`, `configurator`, `showroom`, `effects`) under `src/experiences` when implemented. Share rendering/runtime utilities under `shared/three` only where necessary. Keep canonical variant IDs and prices in commerce state/API contracts, not inferred from meshes. Heavy scenes must not enter the initial storefront bundle. Every scene needs HTML commerce controls and image/error fallbacks.
+The 3D experiences (showroom, room visualizer, configurator, product 3D views) were removed on 16 Nov 2026 by client decision, together with the `assets` backend module and its tables (V17). See `docs/3d-experiences.md`.
 
 ## Environments and security
 
