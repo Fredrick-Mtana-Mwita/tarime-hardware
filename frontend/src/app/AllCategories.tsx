@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { AnimatePresence, motion } from 'motion/react'
 import type { Category } from '../features/catalogue/types'
 import { pick, useLanguage, useT } from '../shared/i18n'
 import { assetUrl } from '../shared/assetUrl'
@@ -26,13 +27,14 @@ export function AllCategories({ categories, current }: { categories: Category[];
       {t('All categories')}
       <svg aria-hidden="true" className="chevron" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6" /></svg>
     </button>
-    {open && <div className="all-categories-panel" id="all-categories-panel">
+    <AnimatePresence>{open && <motion.div className="all-categories-panel" id="all-categories-panel" key="panel"
+      initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}>
       <div className="all-categories-head"><p>{t('Shop by category')}</p><a href="#/shop">{t('All products')} <small>{total}</small> →</a></div>
       <ul>{categories.map(c => <li key={c.id}><a href={`#/shop?category=${c.slug}`} aria-current={current === c.slug ? 'page' : undefined}>
         <CategoryThumb slug={c.slug} imagePath={c.imagePath} />
         <span><strong>{pick(lang, c.name, c.nameSw)}</strong><small>{t(c.productCount === 1 ? '{n} product' : '{n} products', { n: c.productCount })}</small></span>
       </a></li>)}</ul>
-    </div>}
+    </motion.div>}</AnimatePresence>
   </div>
 }
 

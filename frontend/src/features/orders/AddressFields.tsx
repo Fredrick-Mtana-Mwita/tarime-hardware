@@ -25,17 +25,23 @@ export function AddressFields({ location, onLocation }: { location: Location; on
       { enableHighAccuracy: true, timeout: 15000, maximumAge: 60000 })
   }
   return <fieldset className="address-fields"><legend>{t('Delivery address')}</legend>
-    <label htmlFor="order-area">{t('Area or village')}</label>
-    {areas.confirmed ? <>
-      <select id="order-area" name={area === 'other' ? undefined : 'area'} value={area} onChange={event => setArea(event.target.value)} required>
-        <option value="" disabled>{t('Choose your area')}</option>{areas.areas.map(a => <option key={a} value={a}>{a}</option>)}<option value="other">{t('Another area…')}</option>
-      </select>
-      {area === 'other' && <input aria-label={t('Area or village')} name="area" required minLength={2} maxLength={60} defaultValue={saved} />}
-    </> : <input id="order-area" name="area" required minLength={2} maxLength={60} defaultValue={saved} placeholder={t('e.g. Nyamisangura, Tarime')} />}
+    <div className="checkout-pair">
+      <div className="checkout-field">
+        <label htmlFor="order-area">{t('Area or village')}</label>
+        {areas.confirmed ? <>
+          <select id="order-area" name={area === 'other' ? undefined : 'area'} value={area} onChange={event => setArea(event.target.value)} required>
+            <option value="" disabled>{t('Choose your area')}</option>{areas.areas.map(a => <option key={a} value={a}>{a}</option>)}<option value="other">{t('Another area…')}</option>
+          </select>
+          {area === 'other' && <input aria-label={t('Area or village')} name="area" required minLength={2} maxLength={60} defaultValue={saved} />}
+        </> : <input id="order-area" name="area" required minLength={2} maxLength={60} defaultValue={saved} placeholder={t('e.g. Nyamisangura, Tarime')} />}
+      </div>
+      <div className="checkout-field">
+        <label htmlFor="order-landmark">{t('Nearest landmark')} <span>{t('(optional)')}</span></label>
+        <input id="order-landmark" name="landmark" maxLength={80} placeholder={t('e.g. Opposite the market, near the church')} />
+      </div>
+    </div>
     <label htmlFor="order-address">{t('House, street or plot')}</label>
     <textarea id="order-address" name="address" autoComplete="street-address" required minLength={3} maxLength={250} rows={2} placeholder={t('e.g. Plot 12, blue gate')} />
-    <label htmlFor="order-landmark">{t('Nearest landmark')} <span>{t('(optional)')}</span></label>
-    <input id="order-landmark" name="landmark" maxLength={80} placeholder={t('e.g. Opposite the market, near the church')} />
     <div className="location-row">
       {location ? <p className="location-set">{t('Location added')} · {location.lat.toFixed(4)}, {location.lng.toFixed(4)} <button type="button" className="text-link" onClick={() => onLocation(null)}>{t('Remove')}</button></p>
         : <button type="button" className="button secondary" onClick={locate} disabled={locating}>{locating ? t('Getting your location…') : t('Add my current location')}</button>}

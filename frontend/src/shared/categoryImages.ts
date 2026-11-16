@@ -21,3 +21,22 @@ const fallback: Record<string, string> = {
 export function categoryImage(slug: string, imagePath: string): string {
   return imagePath || fallback[slug] || ''
 }
+
+/** Wide covers (1100 x 760) for the home page category tiles. PLACEHOLDER: free Pexels photos, replace with the shop's own. */
+const covers: Record<string, string> = {
+  'power-tools-machinery': '/images/cat-power-tools-wide.jpg', // Pexels 30413428
+  'fasteners-fixings': '/images/cat-fasteners-wide.jpg', // Pexels 5279361
+  'steel-metal-products': '/images/cat-steel-wide.jpg', // Pexels 36003992
+  'doors-windows-accessories': '/images/cat-doors-windows-wide.jpg', // Pexels 279810
+  'ceilings-partitions': '/images/cat-ceilings-wide.jpg', // Pexels 7166945
+  'welding-fabrication': '/images/cat-welding-wide.jpg', // Pexels 15888226
+  'security-safety-equipment': '/images/cat-safety-wide.jpg', // Pexels 38070
+  'adhesives-sealants': '/images/cat-adhesives-wide.jpg', // Pexels 6124242
+  'gardening-outdoor': '/images/cat-gardening-wide.jpg', // Pexels 3971211
+  'cleaning-maintenance': '/images/cat-cleaning-wide.jpg', // Pexels 3177257
+}
+
+/** The cover photo for a category tile: its own photo if it has one, else a placeholder photo, else ''. */
+export function categoryCover(slug: string, imagePath: string): string {
+  return imagePath || covers[slug] || ''
+}

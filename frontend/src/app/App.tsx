@@ -1,3 +1,4 @@
+import { MotionConfig, motion } from 'motion/react'
 import { useT } from '../shared/i18n'
 import { isClientPreview } from '../shared/preview'
 import { PreviewUnavailable } from '../preview/PreviewNotice'
@@ -16,6 +17,7 @@ import { CartPage } from '../features/cart/CartPage'
 import { CartDrawer } from '../features/cart/CartDrawer'
 import { openCartDrawer } from '../features/cart/drawer'
 import { MobileTabBar } from './MobileTabBar'
+import { useScrollBackHeader } from './useScrollBackHeader'
 import { LanguageSwitch } from './Language'
 import { Footer, WhatsAppButton } from './Footer'
 import { PolicyPage } from './PolicyPage'
@@ -38,7 +40,8 @@ export function App() { const t = useT();
   const params = new URLSearchParams(query)
   const [searchActive, setSearchActive] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
-  useEffect(() => { window.scrollTo({ top: 0 }) }, [hash])
+  const headerHidden = useScrollBackHeader(menuOpen)
+  useEffect(() => { window.scrollTo({ top: 0, behavior: 'instant' }) }, [hash])
   function search(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
     const q = String(new FormData(event.currentTarget).get('q') || '').trim()
@@ -52,10 +55,10 @@ export function App() { const t = useT();
       <div className="auth-language"><LanguageSwitch /></div>
     </main>
   }
-  return <>
+  return <MotionConfig reducedMotion="user">
     <a className="skip-link" href="#main" onClick={event => { event.preventDefault(); document.getElementById('main')?.focus() }}>{t("Skip to content")}</a>
     <div className="topbar"><div className="container"><span>Tarime <b>{t("· Build with confidence")}</b></span><span>{t("Hardware. Building. Finishing.")}</span><LanguageSwitch /></div></div>
-    <header className="site-header"><div className="container header-row">
+    <header className={`site-header${headerHidden ? ' is-hidden' : ''}`}><div className="container header-row">
       <button className="menu-button" aria-label={t("Toggle categories")} aria-expanded={menuOpen} onClick={() => setMenuOpen(!menuOpen)}>☰</button>
       <a href="#/" className="logo" aria-label={t("Tarime Hardware home")}><span className="logo-mark">T</span><span><strong>TARIME</strong><small>HARDWARE</small></span></a>
       <DeliverTo />
@@ -70,7 +73,7 @@ export function App() { const t = useT();
       <a className="design-nav-link" href="#/design-services" onClick={() => setMenuOpen(false)} aria-current={path === '/design-services' ? 'page' : undefined}>{t('Interior & Exterior Design')}</a>
       {categories.error && <button onClick={categories.retry}>{t("Reload categories")}</button>}
     </nav></header>
-    <main id="main" tabIndex={-1}>{path === '/' || path === '' ? <Home categories={categories.data || []} /> : path === '/shop' ? <Shop params={params} categories={categories.data || []} />
+    <main id="main" tabIndex={-1}><motion.div key={path} className="page-fade" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.35, ease: 'easeOut' }}>{path === '/' || path === '' ? <Home categories={categories.data || []} /> : path === '/shop' ? <Shop params={params} categories={categories.data || []} />
       : path.startsWith('/product/') ? <ProductDetail key={path} id={path.split('/')[2]} />
       : path === '/design-services' ? <DesignPage /> : path === '/account' ? <AccountPage />
       : path.startsWith('/policies/') ? <PolicyPage key={path} slug={path.split('/')[2]} />
@@ -78,11 +81,11 @@ export function App() { const t = useT();
       : path === '/orders' ? <MyOrdersPage key={user?.id || 'guest'} />
       : /^\/orders\/[^/]+\/receipts\/[^/]+$/.test(path) ? <OrderReceiptPage key={(user?.id || 'guest') + path} id={path.split('/')[2]} receiptNumber={path.split('/')[4]} />
       : path.startsWith('/orders/') ? <OrderDetailPage key={(user?.id || 'guest') + path} id={path.split('/')[2]} />
-      : <div className="container load-state"><h1>{t("Page not found")}</h1><a className="button primary" href="#/shop">{t("Browse products")}</a></div>}</main>
+      : <div className="container load-state"><h1>{t("Page not found")}</h1><a className="button primary" href="#/shop">{t("Browse products")}</a></div>}</motion.div></main>
     <Footer />
     <WhatsAppButton />
     <CartDrawer />
     
     <MobileTabBar path={path} cartCount={cart.items.length} signedIn={!!user} categories={categories.data || []} />
-  </>
+  </MotionConfig>
 }

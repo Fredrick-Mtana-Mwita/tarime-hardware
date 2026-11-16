@@ -1,5 +1,6 @@
 import { useT } from '../../shared/i18n'
 import { useEffect, useRef } from 'react'
+import { AnimatePresence, motion } from 'motion/react'
 import { money } from '../catalogue/format'
 import { useCart, updateQuantity, removeItem } from './store'
 import { useCartQuote } from './useCartQuote'
@@ -37,10 +38,11 @@ export function CartDrawer() { const t = useT();
       if (opener.current instanceof HTMLElement) opener.current.focus()
     }
   }, [open])
-  if (!open) return null
-  return <div className="cart-drawer-layer">
-    <button className="cart-drawer-backdrop" aria-label={t("Close cart")} tabIndex={-1} onClick={closeCartDrawer} />
-    <div className="cart-drawer" role="dialog" aria-modal="true" aria-labelledby="cart-drawer-title" tabIndex={-1} ref={panel}>
+  return <AnimatePresence>{open && <div className="cart-drawer-layer" key="cart-drawer">
+    <motion.button className="cart-drawer-backdrop" aria-label={t("Close cart")} tabIndex={-1} onClick={closeCartDrawer}
+      initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.25 }} />
+    <motion.div className="cart-drawer" role="dialog" aria-modal="true" aria-labelledby="cart-drawer-title" tabIndex={-1} ref={panel}
+      initial={{ x: '100%' }} animate={{ x: 0 }} exit={{ x: '100%' }} transition={{ duration: 0.32, ease: [0.22, 1, 0.36, 1] }}>
       <div className="cart-drawer-head"><h2 id="cart-drawer-title">{t('Your cart ({n})', { n: cart.items.length })}</h2><button className="cart-drawer-close" onClick={closeCartDrawer} aria-label={t("Close cart")}>×</button></div>
       {!cart.items.length ? <div className="cart-drawer-empty"><p>{t("Your cart is empty.")}</p><a className="button primary" href="#/shop">{t("Browse products")}</a></div> : <>
         <ul className="cart-drawer-items">{cart.items.map(item => {
@@ -63,6 +65,6 @@ export function CartDrawer() { const t = useT();
           <a className="button primary" href="#/checkout">{t("Continue to checkout")}</a>
           <a className="button secondary" href="#/cart">{t("View full cart")}</a>
         </div></>}
-    </div>
-  </div>
+    </motion.div>
+  </div>}</AnimatePresence>
 }

@@ -115,3 +115,18 @@ body.drawer-open{overflow:hidden}
 .header-row>.search-form{grid-column:2;grid-row:1;width:100%;margin:0}
 .header-row>.header-actions{grid-column:3;grid-row:1;justify-self:end}
 }
+/* Laptop screens: keep the big banners within one screen so the categories start to show below them */
+@media(min-width:761px){.hero{height:clamp(340px,calc(100vh - 300px),480px)}}
+@media(min-width:761px){.hero-copy{top:50%;transform:translateY(-50%)}.hero-copy h1{font-size:clamp(32px,4.2vh + 12px,48px)}}
+
+/* Motion now animates the drawer and the categories panel; the old CSS keyframes would run twice. */
+.cart-drawer,.all-categories-panel{animation:none}
+/* Scroll-back header (like selcom.bank): slides away on scroll down, returns on scroll up. */
+.site-header{transition:transform .35s cubic-bezier(.22,1,.36,1),box-shadow .35s}
+.site-header.is-hidden{transform:translateY(-100%);box-shadow:none}
+html:not(.header-hidden) .site-header{box-shadow:0 1px 0 var(--line)}
+html.header-hidden .checkout-page .commerce-summary,html.header-hidden .order-page .commerce-summary{top:24px}
+.checkout-page .commerce-summary,.order-page .commerce-summary{transition:top .35s cubic-bezier(.22,1,.36,1)}
+@media(prefers-reduced-motion:reduce){.site-header,.checkout-page .commerce-summary,.order-page .commerce-summary{transition:none}}
+html{scroll-behavior:smooth}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}

@@ -25,3 +25,9 @@
 @media(max-width:480px){.inventory-grid{grid-template-columns:1fr}.inventory-card>img{height:180px}}
 @media(prefers-reduced-motion:reduce){.staff-shell *{scroll-behavior:auto;transition:none;animation:none}}
 .receive-dialog{margin:auto}
+
+/* Owner "View as" switch and the reminder shown while viewing as another role */
+.view-as { display: inline-flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600; }
+.view-as select { min-height: 36px; padding: 4px 28px 4px 10px; border: 1px solid var(--line, #d5d9de); border-radius: 8px; background: inherit; color: inherit; font-weight: 700; }
+.view-as-banner { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin-bottom: 20px; padding: 12px 16px; border: 1px solid #f2a90066; border-radius: 12px; background: #fff4db; color: #5c3b00; font-size: 14px; }
+.view-as-banner .button { min-height: 36px; }
